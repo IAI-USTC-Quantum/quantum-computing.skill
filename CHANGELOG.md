@@ -2,6 +2,25 @@
 
 All notable changes to the `quantum-computing.skill` package are documented here.
 
+## [0.0.14] - 2026-05-18 — uniqc-version-tracker skill
+
+### New skill (`skills/`)
+
+- **`uniqc-version-tracker`** — automated UnifiedQuantum version tracking
+  with a 5-phase workflow: DETECT version gap (installed uniqc vs CLAUDE.md
+  baseline + git tags + PyPI), DIFF changelog/commits between releases,
+  SMOKE-TEST all 13 skills in parallel via Claude Code sub-agents, AGGREGATE
+  results cross-referenced with breaking changes, and REPORT with a markdown
+  table + prioritized recommendations. Ships 13 minimal smoke-test scripts
+  (~10-30 lines each) that exercise each skill's core API with dummy backends,
+  plus helper scripts for version detection, changelog parsing, and result
+  aggregation. Report-only by default — never auto-edits skill files without
+  user approval.
+
+### `CLAUDE.md`
+
+- Key Skills list updated to include `uniqc-version-tracker`.
+
 ## [0.0.13] - 2026-05-14 — UnifiedQuantum 0.0.13 alignment + 5 new skills
 
 This release aligns the entire skill collection with **UnifiedQuantum

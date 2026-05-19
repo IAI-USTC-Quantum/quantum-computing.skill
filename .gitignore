@@ -54,3 +54,6 @@ data/
 *.jpg
 h2_curve.png
 maxcut_solution.png
+
+# Claude Code
+CLAUDE.md

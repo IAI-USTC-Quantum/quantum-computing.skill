@@ -1,0 +1,7 @@
+interface:
+  display_name: "Uniqc Version Tracker"
+  short_description: "Detect new UnifiedQuantum releases, diff CHANGELOGs, smoke-test all 13 skills against the latest version, and produce an aggregated breakage report."
+  default_prompt: "Use $uniqc-version-tracker to check if there's a new uniqc release, run smoke tests across all skills, and report which APIs are broken."
+
+policy:
+  allow_implicit_invocation: true
