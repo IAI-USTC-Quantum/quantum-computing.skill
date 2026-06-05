@@ -32,6 +32,30 @@ Path("circuit.originir").write_text(c.originir)
 
 `uniqc submit circuit.originir --backend ...` will read it directly.
 
+### OriginIR vs OriginIR-ext (uniqc ≥ 0.0.15)
+
+As of uniqc 0.0.15, `c.originir` returns **OriginIR-ext** by default
+(a strict superset that adds `ECR`/`ISWAP`/`XX`/`YY`/`ZZ`/`XY`/`PHASE2Q`/
+`UU15`/`RPhi*`, `QRAM`, `DEF`/`ENDDEF`, inline `dagger`/`controlled_by(...)`,
+error channels). For plain circuits (H/CNOT/RX/RY/RZ/CZ/MEASURE …) the two
+forms are byte-identical, so the snippet above keeps working. If your
+circuit uses any ext-only construct **and** you submit to OriginQ real
+hardware, persist the official form instead:
+
+```python
+Path("circuit.originir").write_text(c.to_originir_official())
+```
+
+For raw text you already have on disk, convert with:
+
+```python
+from uniqc.compile import convert_originir_ext_to_originir
+official = convert_originir_ext_to_originir(Path("circuit.originir").read_text())
+```
+
+Local `Simulator` / `NoisySimulator` and `dummy:*` backends accept both
+languages — no conversion needed for sanity-check runs.
+
 ## Persist as `.qasm` (recommended for IBM / Quafu)
 
 ```python

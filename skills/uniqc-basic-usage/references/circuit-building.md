@@ -46,7 +46,7 @@ c = Circuit(qregs={"data": 4, "ancilla": 2})  # 命名寄存器
 
 | 属性 | 含义 |
 |------|------|
-| `originir` | OriginIR 文本 |
+| `originir` | OriginIR 文本（uniqc ≥ 0.0.15: 默认输出 **OriginIR-ext**，OriginQ 云提交前用 `to_originir_official()` 转换） |
 | `qasm` | OpenQASM 2.0 文本 |
 | `circuit` | 一般可视为 `originir` 别名 |
 | `qubit_num` | 当前线路的 qubit 数 |
@@ -187,5 +187,10 @@ c.barrier(0, 1, 2)
 如果后续步骤涉及 `uniqc simulate`，建议先把输入统一到 OriginIR，再继续执行。
 
 > Gotcha: `Circuit.originir` 是 **property**，不是方法。写 `c.originir`（不是 `c.to_originir()` / `c.originir()`）。同理 `c.qasm` 也是 property。
+
+> **uniqc ≥ 0.0.15 提醒**：`c.originir` 现在默认输出 **OriginIR-ext**（官方 OriginIR 的严格超集，新增 `ECR` / `ISWAP` / `XX` / `YY` / `ZZ` / `XY` / `PHASE2Q` / `UU15` / `RPhi*`、`QRAM`、`DEF`/`ENDDEF`、内联 `dagger` / `controlled_by(...)`、错误信道）。
+> - 本地 `Simulator` / `NoisySimulator` 与 `dummy:*` 后端都原生支持，无需转换。
+> - 提交到 **OriginQ 真实硬件** 时只接受官方 OriginIR——若线路用到 ext-only 构造，请改写 `c.to_originir_official()`，或对裸文本调用 `uniqc.compile.convert_originir_ext_to_originir()`。普通线路（H/CNOT/RX/RY/RZ/CZ/MEASURE…）两种形式输出完全一致，旧代码不受影响。
+> - 把 `Circuit` 对象直接传给 `submit_task(c, backend="originq:WK_C180", ...)`，uniqc 会自动做转换。
 
 构建完成后，可用 `circuit_to_html()` 或 `schedule_circuit()` 可视化线路结构和时间线（见 [timeline-visualization.md](timeline-visualization.md)）。

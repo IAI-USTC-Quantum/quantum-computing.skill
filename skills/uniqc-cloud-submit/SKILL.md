@@ -79,6 +79,21 @@ Then:
   `"ibm:ibm_fez"`, `"quark:Baihua"`, or a `"dummy:..."` rule string.
   The legacy two-arg form (`backend="originq", backend_name="WK_C180"`)
   still works but is no longer the recommended pattern.
+- **OriginIR-ext default emission (uniqc ≥ 0.0.15)** — `Circuit.originir`
+  now returns **OriginIR-ext** (strict superset of official OriginIR with
+  `ECR`/`ISWAP`/`XX`/`YY`/`ZZ`/`XY`/`PHASE2Q`/`UU15`/`RPhi*`, `QRAM`,
+  `DEF`/`ENDDEF`, inline `dagger`/`controlled_by(...)`, error channels).
+  - Local `Simulator` / `NoisySimulator` and `dummy:*` backends accept
+    both languages natively — nothing to change.
+  - **OriginQ cloud** only accepts official OriginIR. If your circuit
+    uses any ext-only construct, persist with `c.to_originir_official()`
+    (Python) or feed raw ext text through
+    `uniqc.compile.convert_originir_ext_to_originir()`. Plain circuits
+    (H/CNOT/RX/RY/RZ/CZ/MEASURE …) round-trip unchanged, so existing
+    Bell-pair snippets keep working — the conversion call is the
+    safe-by-default pattern. Passing the `Circuit` object directly to
+    `submit_task(c, backend="originq:WK_C180", ...)` lets uniqc do the
+    conversion for you.
 - For OriginQ real hardware, **compile first** and pass the compiled
   `Circuit`:
   ```python
@@ -91,6 +106,13 @@ Then:
   qiskit, which is now a **core dependency** in uniqc 0.0.13 (no extra
   install required); set `local_compile=0` to skip. `auto_compile` is also
   fixed in 0.0.13 to actually run when no `compile_options` are provided.
+- **Packaging extras (uniqc ≥ 0.0.15)** — `[all]` is the broadly-installable
+  superset but **no longer pulls in `[quark]`** (quarkstudio has no
+  cp314/win32 wheels). Install Quark explicitly with `[quark]` on
+  Linux/macOS Python 3.12–3.13. The `[originq]` extra is gated to
+  `python_version < '3.14'` until pyqpanda3 publishes a cp314 wheel. The
+  core package (and `[simulation]` / `[visualization]` / `[pytorch]`)
+  supports cp310–cp314.
 - For Quark / IBM: same single-string `backend="<provider>:<chip>"` works,
   shots small (≤ 200) for the first real attempt. Quafu is **deprecated and
   archived** in 0.0.13 — `[quafu]` extra removed; users that still need
@@ -100,7 +122,9 @@ Then:
   `uniqc.config.get_*_config(...)`, not from the user prompt.
 - All submits return a single string id of the form `uqt_<32-hex>` (36 chars).
   Treat platform-native ids (OriginQ MD5, IBM `cp...`, Quafu UUID) as
-  legacy — they still resolve in `query_task` but emit `DeprecationWarning`.
+  legacy — they still resolve in `query_task` but emit `DeprecationWarning`
+  that mentions the **0.1.0 deprecation cliff** (every currently-deprecated
+  API is removed at uniqc 0.1.0).
 - `wait_for_result(uid)` (and its `get_result(uid)` alias) returns one
   `UnifiedResult` for single-circuit tasks and `list[UnifiedResult]` for
   batches — branch on `isinstance(_, list)`. `poll_result(uid)` returns

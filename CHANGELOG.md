@@ -2,6 +2,90 @@
 
 All notable changes to the `quantum-computing.skill` package are documented here.
 
+## [0.0.15] - 2026-06-04 — UnifiedQuantum 0.0.15 alignment
+
+UnifiedQuantum 0.0.15 introduced **no new breaking changes** on top of
+0.0.14, but added two large feature surfaces (native PyTorch parameter
+integration + OriginIR-ext as the default emitted dialect), tweaked one
+silent behaviour (`Circuit.has_param` property), widened Python support
+to 3.14, and formalised the 0.1.0 deprecation cliff. This release brings
+the skill collection in lockstep with those additions.
+
+### Aligned with UnifiedQuantum 0.0.15 changes (existing skills)
+
+- **`uniqc-quantum-ml`** — added a Layer 0 row to the layer-selection
+  table covering the new **native PyTorch params** workflow
+  (`Circuit.param_map` / `Circuit.param_dict` / `Circuit.has_param`
+  property / `Circuit.set_param_last`, auto-`nn.Parameter` registration
+  in `add_gate`, top-level `uniqc.expectation()` for backend-agnostic
+  differentiable expectation values). Added a complete cheat-sheet
+  section and a new reference page `references/native-torch-params.md`
+  with mental model, end-to-end training loop, state_dict round-trip,
+  and an explicit gotcha box separating the `has_param` property from
+  the `add_gate(..., has_param=True)` kwarg.
+- **`uniqc-circuit-interop`** — `Circuit.originir` now emits
+  **OriginIR-ext** (strict superset). Added a full "OriginIR-ext vs
+  official OriginIR" section, the 12-gate `EXTENDED_GATES_ONLY`
+  inventory, `Circuit.to_originir_official()` and
+  `uniqc.compile.convert_originir_ext_to_originir(text)` converters,
+  two new round-trip pitfall rows, and expanded "Names to remember".
+- **`uniqc-cloud-submit`** — flagged that the existing pattern of
+  writing `circuit.originir` to a `.originir` file before submitting to
+  `originq:WK_C180` now serialises **OriginIR-ext**, which OriginQ
+  cloud does not accept. Added Practical-defaults bullets covering
+  `to_originir_official()`, the `convert_originir_ext_to_originir()`
+  converter, the safer `submit_task(circuit_object, ...)` form (uniqc
+  handles conversion), the `[all]` / `[quark]` / `[originq]` packaging
+  changes, and the 0.1.0 deprecation cliff. Added an "OriginIR vs
+  OriginIR-ext (uniqc ≥ 0.0.15)" subsection in
+  `references/authoring-program-files.md`.
+- **`uniqc-basic-usage`** — annotated the `originir` row in 常用属性
+  to call out OriginIR-ext default emission and added an 输出建议
+  reminder block (use `to_originir_official()` before posting to
+  OriginQ cloud / sharing with non-uniqc tools).
+- **`uniqc-doctor-config`** — added a "0.1.0 deprecation cliff"
+  section listing every API that emits a `DeprecationWarning`
+  containing the literal `"uniqc 0.1.0"` substring
+  (`uniqc.simulator.get_backend()`, `IBMAdapter`, `quafu_adapter`
+  module, in-place `*_circuit(circuit, ...)` algorithm builders,
+  `grover_diffusion(..., ancilla=...)` kwarg, task lookup by platform
+  task id). Updated the optional-dep group table (`[originq]` gated to
+  Py < 3.14; `[quark]` no longer pulled by `[all]`) and added a
+  matching row to the error → action table.
+
+### `CLAUDE.md`
+
+- Bumped baseline to **UnifiedQuantum v0.0.15** (2026-06-04).
+- Added a "Key changes in v0.0.15" block covering native PyTorch
+  params, OriginIR-ext default emission, the `has_param` semantic
+  flip, Python 3.14, the `[all]` / `[quark]` / `[originq]` packaging
+  changes, and the 0.1.0 deprecation cliff.
+- Appended two Core Patterns bullets: OriginIR-ext default-emission
+  and the new top-level `uniqc.expectation(circuit, observable,
+  backend=...)`.
+
+### `README.md`
+
+- Bumped follow-up banner to UnifiedQuantum v0.0.15; layered the
+  v0.0.15 additions on top of the existing v0.0.13 breaking-change
+  list (which remains the authoritative breakage reference).
+
+### Smoke harness (`uniqc-version-tracker`)
+
+- `smoke_quantum_volume.py` — wrapped the qiskit import in
+  `try/except` so a missing qiskit prints `SKIP: qiskit not installed`
+  and exits 0, matching the `smoke_quantum_ml.py` (torch) pattern.
+- `smoke_quantum_ml.py` — added v0.0.15 assertions:
+  `hasattr(uniqc, "expectation")`, builds a 1-qubit `Circuit` with a
+  `torch.Tensor` param, asserts the `has_param` property,
+  `len(param_dict) >= 1`, `len(param_map) >= 1`.
+
+### Verified
+
+- Re-ran the full smoke aggregator against installed uniqc **0.0.15**:
+  **12/13 PASS, 1 SKIP** (`smoke_quantum_ml.py` SKIP because torch is
+  not installed in this env). Zero regressions vs the 0.0.14 baseline.
+
 ## [0.0.14] - 2026-05-18 — uniqc-version-tracker skill
 
 ### New skill (`skills/`)

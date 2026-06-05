@@ -30,9 +30,9 @@ It prints six Rich tables in order:
 
    | Group | Packages | Install |
    | ----- | -------- | ------- |
-   | originq | `pyqpanda3` | `pip install unified-quantum[originq]` |
+   | originq | `pyqpanda3` | `pip install unified-quantum[originq]` (Py < 3.14 in v0.0.15) |
    | quafu (archived) | `pyquafu` | `pip install pyquafu` (numpy<2) |
-   | quark | `quarkstudio`, `quarkcircuit` | `pip install unified-quantum[quark]` (Py ≥ 3.12) |
+   | quark | `quarkstudio`, `quarkcircuit` | `pip install unified-quantum[quark]` (Linux/macOS, Py 3.12–3.13; **no longer included in `[all]` as of v0.0.15**) |
    | qiskit (now core) | `qiskit`, `qiskit_ibm_runtime` | core deps in 0.0.13 |
    | simulation | `qutip` | `pip install unified-quantum[simulation]` |
    | visualization | `matplotlib` | `pip install unified-quantum[visualization]` |
@@ -83,6 +83,35 @@ It prints six Rich tables in order:
   (uniqc only auto-reads `UNIQC_PROFILE` and `HTTP(S)_PROXY` — not
   `IBM_TOKEN` etc.).
 
+## 0.1.0 deprecation cliff (uniqc ≥ 0.0.15)
+
+uniqc 0.0.15 formalised a **0.0.x → 0.1.0 compatibility cliff**: every
+API currently emitting `DeprecationWarning` will be removed (or stop
+being maintained) at uniqc 0.1.0. The upstream policy lives at
+`docs/source/7_releases/deprecation_policy.md`. Notable items to flag
+when you see them in `uniqc doctor` or user logs:
+
+| Deprecated (now)                                              | Replacement                                                      |
+| ------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `uniqc.simulator.get_backend()`                               | `get_simulator()` / `create_simulator()`                         |
+| `IBMAdapter`                                                  | `QiskitAdapter`                                                  |
+| entire `uniqc.backend_adapter.task.adapters.quafu_adapter` module | (no replacement) install `pyquafu` directly with `numpy<2` if essential |
+| in-place `*_circuit(circuit, ...)` forms of every algorithm builder | fragment form `*_circuit(n_qubits, ...) -> Circuit` + `circuit.add_circuit(fragment)` |
+| `grover_diffusion(..., ancilla=...)` kwarg (unused)           | drop the kwarg                                                   |
+| Task lookup by platform task id                               | use the uniqc `uqt_*` id returned by `submit_task` / `submit_batch` |
+
+Every deprecation message routes through
+`uniqc._deprecation.warn_removed_in_0_1_0` and contains the literal
+substring `"uniqc 0.1.0"`. To find every deprecated API exercised in a
+log:
+
+```bash
+python my_script.py 2>&1 | grep -F "uniqc 0.1.0"
+```
+
+If a user is targeting long-lived production code, treat any of the
+above as a blocking finding even though it currently still works.
+
 ## Cheat sheet — fix-with-one-command
 
 ```bash
@@ -118,14 +147,16 @@ MEASURE q[1],c[1]' --backend dummy:local:simulator --shots 100 --wait
 
 | Error                                            | First action                                                                                       |
 | ------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
-| `MissingDependencyError(extra='originq')`        | `pip install unified-quantum[originq]`; re-run `uniqc doctor`.                                     |
+| `MissingDependencyError(extra='originq')`        | `pip install unified-quantum[originq]` (Py < 3.14 in v0.0.15); re-run `uniqc doctor`.              |
 | `MissingDependencyError(extra='qiskit')` (rare) | qiskit is core in 0.0.13 — `pip install --upgrade unified-quantum`.                                |
 | `MissingDependencyError(extra='quafu')`          | Quafu archived; `pip install pyquafu` directly. Hint at deprecation.                               |
+| `ModuleNotFoundError: quarkstudio` after `pip install unified-quantum[all]` (v0.0.15) | `[all]` no longer pulls `[quark]`. Install with `pip install unified-quantum[quark]` (Linux/macOS, Py 3.12–3.13). |
 | `ConfigValidationError: Missing token`           | `uniqc config set <p>.token <K>` (Quark uses `QUARK_API_KEY`).                                     |
 | `BackendNotFoundError: originq:WK_C180`          | `uniqc backend update --platform originq` then `uniqc backend list --platform originq`.            |
 | `AuthenticationError`                            | Token typo / expired / wrong instance. Re-set, then `uniqc config validate` and `doctor`.          |
 | `NetworkError` / IBM 401                         | Proxy missing — set `ibm.proxy.https/http` in config; re-run.                                       |
-| `DeprecationWarning at uniqc.backend_adapter.task.adapters.quafu_adapter` | Quafu archived; migrate or accept the warning.                       |
+| `DeprecationWarning at uniqc.backend_adapter.task.adapters.quafu_adapter` | Quafu archived; migrate or accept the warning. **Will be removed at uniqc 0.1.0** (v0.0.15 cliff). |
+| Any `DeprecationWarning` containing `"uniqc 0.1.0"` | Code path will be removed at 0.1.0 (v0.0.15 deprecation cliff); see the "0.1.0 deprecation cliff" section above for the replacement table. |
 
 ## Names to remember
 

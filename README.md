@@ -6,7 +6,16 @@
 
 面向 [UnifiedQuantum](https://github.com/IAI-USTC-Quantum/UnifiedQuantum) 的 Agent Skills 集合仓库。
 
-当前版本已 follow-up **UnifiedQuantum v0.0.13**（2026-05-14 release），重点同步：
+当前版本已 follow-up **UnifiedQuantum v0.0.15**（2026-06-04 release），v0.0.14 → v0.0.15 没有新的破坏性变更，重点同步：
+
+- **原生 PyTorch 参数集成**：`Circuit.param_map` / `Circuit.param_dict` / `Circuit.has_param` / `Circuit.set_param_last`，把 `torch.Tensor` 传入 `add_gate` 会自动注册为 `nn.Parameter`；顶层新增 `uniqc.expectation()` 提供跨后端可微期望值。
+- **OriginIR-ext 超集语言**：`Circuit.originir` 默认输出 **OriginIR-ext**（严格超集，新增 `ECR` / `ISWAP` / `XX` / `YY` / `ZZ` / `XY` / `PHASE2Q` / `UU15` / `RPhi*`、`QRAM`、`DEF`/`ENDDEF` 子程序、内联 `dagger` / `controlled_by(...)`、错误信道）。本地 `Simulator` / `dummy:*` 后端原生兼容；提交到 **OriginQ 真实硬件**请先调用 `Circuit.to_originir_official()` 或 `uniqc.compile.convert_originir_ext_to_originir()`。
+- **行为变更**：`Circuit.has_param`（property）现仅当 ≥1 个参数为 `torch.Tensor` 时返回 `True`；纯 float 参数返回 `False`。`add_gate(..., has_param=True)` kwarg 不受影响。
+- **Python 3.14 支持**：core / `[simulation]` / `[visualization]` / `[pytorch]` 提供 cp310–cp314 wheel。`[originq]` extra 锁定 `python_version < '3.14'`（pyqpanda3 尚无 cp314 wheel）。
+- **打包变更**：`[all]` extra **不再拉取 `[quark]`**（quarkstudio 没有 cp314 / win32 wheel）。需要 Quark 请显式 `pip install unified-quantum[quark]`（Linux/macOS, Py 3.12–3.13）。
+- **0.1.0 deprecation cliff**：所有当前发 `DeprecationWarning` 的 API 会在 uniqc 0.1.0 移除（每条提示都包含 `"uniqc 0.1.0"` 字串）。重点：`uniqc.simulator.get_backend()`、`IBMAdapter`、`quafu_adapter` 模块、各算法 builder 的 in-place `*_circuit(circuit, ...)` 形式、`grover_diffusion(..., ancilla=...)` kwarg、按 platform task id 查询任务。
+
+上一轮 follow-up（v0.0.13）的关键 breaking change（仍是当前的权威列表）：
 
 - **CLI 改动**（breaking）：`uniqc submit` 移除 `--platform`，统一为单一 `--backend <provider>:<chip>`（裸 `dummy` / 不带 `--backend` 等价于 `dummy:local:simulator`）。
 - **统一模拟器**（breaking）：`OriginIR_Simulator` / `QASM_Simulator` 移除，由 `Simulator` / `NoisySimulator` 统一接管，自动判别 OriginIR vs QASM 2.0。

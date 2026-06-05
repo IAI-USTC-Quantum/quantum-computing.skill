@@ -1,5 +1,8 @@
 """Smoke test for uniqc-quantum-ml.
 Tests: QuantumLayer via circuit_def pattern. Skips if torch not installed.
+Also verifies the v0.0.15 top-level `uniqc.expectation()` export and the
+native PyTorch parameter integration entry points (`Circuit.param_map`,
+`Circuit.param_dict`, `Circuit.has_param`).
 """
 import sys
 import math
@@ -31,7 +34,20 @@ def main() -> int:
     output = layer()
     assert output is not None, "QuantumLayer forward pass returned None"
 
-    print("PASS: QuantumLayer OK")
+    # v0.0.15: top-level `expectation` export must exist.
+    import uniqc
+    assert hasattr(uniqc, "expectation"), "v0.0.15 top-level uniqc.expectation is missing"
+
+    # v0.0.15: native torch-param integration on Circuit.
+    from uniqc import Circuit
+    c = Circuit(1)
+    theta = torch.tensor(0.3, requires_grad=True)
+    c.rx(0, theta)
+    assert c.has_param, "Circuit.has_param should be True for tensor param"
+    assert "rx_0" in c.param_dict or len(c.param_dict) >= 1, "Circuit.param_dict empty after add"
+    assert len(c.param_map) >= 1, "Circuit.param_map empty after add"
+
+    print("PASS: QuantumLayer + native torch params (param_map/param_dict/has_param) + uniqc.expectation OK")
     return 0
 
 
