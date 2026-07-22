@@ -9,23 +9,51 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Check out Skill repository
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+
+      - name: Check out aligned UnifiedQuantum source
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+        with:
+          repository: IAI-USTC-Quantum/UnifiedQuantum
+          ref: fix/v0.0.17-stabilization
+          path: UnifiedQuantum
+          fetch-depth: 0
+          submodules: recursive
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e  # v6.8.0
+
       - name: Validate Skill structure and local links
         run: >-
           python .claude/skills/uniqc-version-tracker/examples/validate_skill_repository.py
           --repo-path . --json
+
+      - name: Verify upstream contracts
+        run: >-
+          python .claude/skills/uniqc-version-tracker/examples/verify_upstream_contract.py
+          --repo-path UnifiedQuantum --expected-commit d1794d1
+
       - name: Install the aligned runtime
-        run: pip install "unified-quantum==0.0.17"
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build
+          uv pip install --system setuptools setuptools_scm wheel pybind11
+          uv pip install --system "./UnifiedQuantum[pytorch]" --no-build-isolation
+
       - name: Run offline smoke aggregate
         run: >-
           python .claude/skills/uniqc-version-tracker/examples/aggregate_report.py
           --smoke-dir .claude/skills/uniqc-version-tracker/examples/smoke-tests
           --json-summary smoke-summary.json
+
       - name: Upload smoke summary
-        uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
         with:
           name: smoke-summary
           path: smoke-summary.json
