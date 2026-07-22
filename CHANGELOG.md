@@ -2,6 +2,27 @@
 
 All notable changes to the `quantum-computing.skill` package are documented here.
 
+## [0.0.17] - 2026-07-22 — UnifiedQuantum 0.0.17 alignment
+
+### Changed
+
+- **TorchQuantum install → `torchquantum-ng`** — all skill docs/examples that
+  referenced the old git fork
+  (`torchquantum @ git+…/torchquantum.git@fix/optional-qiskit-deps`) now use
+  the community fork [`torchquantum-ng`](https://pypi.org/project/torchquantum-ng/),
+  which is pulled in by the `[pytorch]` extra. The import name is unchanged
+  (`import torchquantum`), so `pip install unified-quantum[pytorch]` installs
+  both `torch` and the TorchQuantum backend — the separate manual install step
+  is removed from `uniqc-quantum-ml` (SKILL.md, `qnn_moons.py`,
+  `qnn-classifier.md`), `uniqc-basic-usage` (`pytorch-integration.md`, SKILL.md).
+- **v0.0.16–v0.0.17 backend lifecycle** — documented
+  `dummy:virtual:<name>`, `uniqc backend virtual init/list/show/validate`,
+  YAML thermal relaxation, and the unified backend cache root
+  (`~/.uniqc/backend/backends.json`, `~/.uniqc/backend/chips/`).
+- **Release gates** — added offline local-link/front-matter/reference checks,
+  upstream contract parity checks, and fail-closed smoke aggregation with a
+  machine-readable JSON summary.
+
 ## [0.0.15] - 2026-06-04 — UnifiedQuantum 0.0.15 alignment
 
 UnifiedQuantum 0.0.15 introduced **no new breaking changes** on top of

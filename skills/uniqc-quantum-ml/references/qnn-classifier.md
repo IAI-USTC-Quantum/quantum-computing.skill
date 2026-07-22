@@ -9,7 +9,6 @@ hardware-efficient ansatz, and reads out a sigmoid-activated scalar.
 
 ```bash
 pip install unified-quantum[pytorch] scikit-learn
-pip install "torchquantum @ git+https://github.com/Agony5757/torchquantum.git@fix/optional-qiskit-deps"
 ```
 
 ## End-to-end on `make_moons`

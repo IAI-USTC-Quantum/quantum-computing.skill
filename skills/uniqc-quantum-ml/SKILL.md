@@ -16,11 +16,12 @@ learning. UnifiedQuantum exposes four layers:
 | 3     | Hand-written parameter-shift gradient                | Algorithmic research                                 |
 
 > ⚠️ Optional dependency: classes in layer 1 import **torchquantum**.
-> The pip extra `unified-quantum[pytorch]` only pulls `torch`.
-> torchquantum is installed manually:
+> The pip extra `unified-quantum[pytorch]` now pulls **both** `torch` and
+> `torchquantum-ng` (the community TorchQuantum fork; the import name stays
+> `torchquantum`):
 >
 > ```bash
-> pip install "torchquantum @ git+https://github.com/Agony5757/torchquantum.git@fix/optional-qiskit-deps"
+> pip install "unified-quantum[pytorch]"
 > ```
 >
 > If the user hits `ImportError: torchquantum`, install it before
@@ -217,8 +218,8 @@ no public accessor in this version).
   via `circuit.bind({theta: value})`. (Distinct from layer-0 native
   torch params; symbolic params remain useful for hand-rolled
   parameter-shift loops.)
-- Optional extra: `pip install unified-quantum[pytorch]` — pulls torch
-  only. torchquantum is a separate manual install (link above).
+- Optional extra: `pip install unified-quantum[pytorch]` — pulls both
+  torch and torchquantum-ng (import name stays `torchquantum`).
 
 ## Response style
 

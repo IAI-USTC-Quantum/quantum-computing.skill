@@ -35,6 +35,7 @@ if __name__ == "__main__":
 | Skill | Backend | Reason |
 |-------|---------|--------|
 | Most skills | `dummy:local:simulator` | Fast, no network, no credentials |
+| uniqc-basic-usage | `dummy:local:simulator` + temporary HOME-scoped `dummy:virtual:smoke-machine` | Exercises the v0.0.16 YAML init/list/show/validate/submit lifecycle without touching the user's config |
 | uniqc-noise-simulation | `dummy:local:simulator` + `dummy:originq:WK_C180` | Tests both noiseless and chip-backed dummy paths |
 | uniqc-platform-verify | `dummy:local:simulator` + `dummy:local:virtual-line-3` | Tests backend info cache and XEB on virtual line |
 | uniqc-xeb-qem | `dummy:local:simulator` | Readout EM works on any backend |
@@ -53,7 +54,9 @@ except ImportError:
     return 0
 ```
 
-Missing optional deps are deployment issues, not API breakage. Do NOT fail on missing optional deps.
+Missing optional deps are deployment issues, not API breakage. Do NOT fail on
+missing optional deps. A `SKIP:` for any other reason is invalid: the
+aggregate marks it as a failure and exits nonzero.
 
 ## Expected Per-Skill Test Time
 

@@ -27,10 +27,10 @@ them). Use it when the user wants to:
 | User goal                                                   | Read first                                                             |
 | ----------------------------------------------------------- | ---------------------------------------------------------------------- |
 | "Add a single uniform depolarizing channel"                 | [references/error-channels.md](references/error-channels.md)           |
-| "Different noise per gate type / per qubit"                 | [references/error-loaders.md](references/error-loaders.md)             |
-| "Add readout error on top of a circuit"                     | [references/readout-noise.md](references/readout-noise.md)             |
+| "Different noise per gate type / per qubit"                 | **Mental model** below                                                 |
+| "Add readout error on top of a circuit"                     | **Practical defaults** below                                           |
 | "Use the chip's own published characterization as the noise model" | [references/chip-backed-dummy.md](references/chip-backed-dummy.md) |
-| "Compare my noise model to a measured XEB / readout cal"    | [references/validate-noise-model.md](references/validate-noise-model.md) |
+| "Compare my noise model to a measured XEB / readout cal"    | [references/chip-backed-dummy.md](references/chip-backed-dummy.md) |
 
 ## Mental model
 
@@ -72,7 +72,7 @@ Three loader layers (most general at the bottom):
 from uniqc import Circuit
 from uniqc.simulator import NoisySimulator
 from uniqc.simulator.error_model import (
-    Depolarizing, TwoQubitDepolarizing, AmplitudeDamping,
+    Depolarizing, TwoQubitDepolarizing, AmplitudeDamping, ThermalRelaxation,
     PauliError1Q, PauliError2Q, Kraus1Q,
     ErrorLoader_GenericError,
     ErrorLoader_GateTypeError,
@@ -100,6 +100,9 @@ gspec = ErrorLoader_GateSpecificError({
     ('CNOT', (0,1)):[TwoQubitDepolarizing(0.0061)],
     ('CZ',   (1,2)):[TwoQubitDepolarizing(0.0095)],
 })
+
+# 3b. Gate-time-aware T1/T2 relaxation (all values in ns).
+thermal = ThermalRelaxation(t1_ns=50_000, t2_ns=40_000, gate_time_ns=80)
 
 # 4. NoisySimulator
 sim = NoisySimulator(
@@ -133,10 +136,16 @@ rho    = sim.simulate_density_matrix(c)
   `dummy:<provider>:<chip>` (e.g. `dummy:originq:WK_C180`). uniqc
   builds the noise model from the local backend cache. Run
   `uniqc backend update --platform <p>` before sampling.
+- **For a reproducible custom noisy machine**, create
+  `~/.uniqc/backend/virtual/<name>.yaml` with `uniqc backend virtual init
+  <name>`, then run `list`, `show`, and `validate` before submitting to
+  `dummy:virtual:<name>`. Its `noise.thermal_relaxation` converts YAML
+  T1/T2 (µs) plus `gate_times_ns` into `ThermalRelaxation`; require
+  `t2_us <= 2 * t1_us`.
 - **Validate the model**. Compare measured XEB on the noisy sim to the
   measured XEB on the real backend (uniqc-xeb-qem) — they should
   agree within shot noise if the model is faithful.
-- **MPS noise** is not supported. `dummy:mps:linear-N` is **always
+- **MPS noise** is not supported. `dummy:local:mps-linear-N` is **always
   ideal**; for noisy MPS you'd need to drop to a small density-matrix
   sim.
 - **Reproducibility**: `NoisySimulator` accepts `seed=` on the
@@ -147,13 +156,15 @@ rho    = sim.simulate_density_matrix(c)
 - `uniqc.simulator.NoisySimulator`
 - `uniqc.simulator.error_model.{BitFlip, PhaseFlip, Depolarizing,
   TwoQubitDepolarizing, AmplitudeDamping, PauliError1Q, PauliError2Q,
-  Kraus1Q}`
+  Kraus1Q, ThermalRelaxation}`
 - `uniqc.simulator.error_model.{ErrorLoader_GenericError,
   ErrorLoader_GateTypeError, ErrorLoader_GateSpecificError}`
 - `dummy:<provider>:<chip>` — chip-backed dummy that builds its noise
   model from the cached chip characterization (uniqc 0.0.13 also fixed
   the bug where a Bell circuit submitted to `dummy:originq:WK_C180`
   reached the simulator as raw H+CNOT and crashed with `TopologyError`).
+- `dummy:virtual:<name>` — user YAML noisy virtual machine; validate it with
+  `uniqc backend virtual validate <name>` before local submission.
 
 ## Response style
 

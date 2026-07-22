@@ -1,7 +1,7 @@
 # Error channels reference
 
 All channels live in `uniqc.simulator.error_model` and are designed to
-be passed inside an `ErrorLoader_*` (see `error-loaders.md`). Each
+be passed inside an `ErrorLoader_*` (see the Skill's **Mental model**). Each
 channel parameter is the **probability** or **strength** of the noise.
 
 | Channel                | Args                          | Notes                                        |
@@ -11,6 +11,7 @@ channel parameter is the **probability** or **strength** of the noise.
 | `Depolarizing(p)`      | `p`                           | (1−p)·ρ + p·I/2.  Single-qubit.              |
 | `TwoQubitDepolarizing(p)` | `p`                       | Acts on the **pair** of qubits the gate touched. Use after `CNOT` / `CZ`. |
 | `AmplitudeDamping(γ)`  | `γ` ∈ [0, 1]                  | T1-like. `γ ≈ Δt / T1` for small `γ`.        |
+| `ThermalRelaxation(t1_ns, t2_ns, gate_time_ns)` | T1/T2 and gate duration in ns | Gate-time-aware amplitude damping plus dephasing; require `t2_ns <= 2 * t1_ns`. |
 | `PauliError1Q(px, py, pz)` | each `pi` ∈ [0, 1]; sum ≤ 1 | Apply X/Y/Z with given probabilities; identity otherwise. |
 | `PauliError2Q(ps)`     | `ps` length 15                | Apply each non-identity 2q Pauli with given probability; ordering documented in source. |
 | `Kraus1Q(kraus_ops)`   | iterable of 2×2 complex arrays | General single-qubit Kraus channel.         |
@@ -22,6 +23,7 @@ channel parameter is the **probability** or **strength** of the noise.
 | Symmetric, "rest of error budget"             | `Depolarizing(error_per_gate)`                         |
 | T1 / amplitude relaxation                     | `AmplitudeDamping(γ = Δt / T1)` after every gate, where Δt is the gate duration. |
 | T2 / pure dephasing                           | `PhaseFlip(p = 0.5 * (1 - exp(-Δt / Tφ)))`             |
+| T1 + T2 with known gate duration              | `ThermalRelaxation(t1_ns, t2_ns, gate_time_ns)` |
 | Chip-measured 1q error (XEB or RB number)     | `PauliError1Q(px=ε/3, py=ε/3, pz=ε/3)` (depolarizing form), or `Depolarizing(ε)` |
 | Chip-measured 2q error (XEB / RB)             | `TwoQubitDepolarizing(ε_2q)`                           |
 | Custom non-Markovian / bespoke channel        | `Kraus1Q([K0, K1, ...])` — supply your own Kraus ops   |

@@ -11,17 +11,10 @@
 
 UnifiedQuantum 当前的 PyTorch 集成是辅助工具风格，而不是“一整套端到端训练框架”。
 
-基础安装：
+基础安装（已包含 TorchQuantum 专用后端所需的 `torchquantum-ng`，导入名仍为 `torchquantum`）：
 
 ```bash
 pip install "unified-quantum[pytorch]"
-```
-
-如果需要 TorchQuantum 专用后端：
-
-```bash
-pip install "unified-quantum[pytorch]"
-pip install "torchquantum @ git+https://github.com/Agony5757/torchquantum.git@fix/optional-qiskit-deps"
 ```
 
 ## 当前公开接口

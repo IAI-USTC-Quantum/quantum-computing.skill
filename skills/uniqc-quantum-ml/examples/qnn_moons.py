@@ -3,7 +3,6 @@
 
 Install:
     pip install unified-quantum[pytorch] scikit-learn
-    pip install "torchquantum @ git+https://github.com/Agony5757/torchquantum.git@fix/optional-qiskit-deps"
 
 Usage:
     python qnn_moons.py
@@ -24,8 +23,7 @@ def main() -> None:
         raise SystemExit(
             f"Required dependencies missing: {exc}\n"
             "Install with:\n"
-            "  pip install unified-quantum[pytorch] scikit-learn\n"
-            '  pip install "torchquantum @ git+https://github.com/Agony5757/torchquantum.git@fix/optional-qiskit-deps"'
+            "  pip install unified-quantum[pytorch] scikit-learn"
         )
 
     torch.manual_seed(0)

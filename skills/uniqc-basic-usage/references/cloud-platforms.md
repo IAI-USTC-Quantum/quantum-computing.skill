@@ -64,7 +64,7 @@ Python adapters 会读取配置。新代码优先通过顶级 `uniqc.config` 理
 > 如果一定要用环境变量传 token，需要在自己的脚本里手动把 env → config 同步（参见 `examples/cloud_submission.py` 里的 `_sync_env_to_config` 辅助函数，那是脚本自己的便利封装，不是 uniqc 的内置行为）。
 >
 > 另外：旧版 `UNIQC_DUMMY` / `UNIQC_SKIP_VALIDATION` 环境变量在 0.0.11.dev10 起**已移除**。改用：
->   - **dummy 模式**：传 `backend="dummy"` / `backend="dummy:virtual-line-N"` / `backend="dummy:originq:WK_C180"` 等到 `submit_task` 即可激活，无需任何环境变量。
+>   - **dummy 模式**：传 `backend="dummy"` / `backend="dummy:local:virtual-line-N"` / `backend="dummy:virtual:<name>"` / `backend="dummy:originq:WK_C180"` 等到 `submit_task` 即可激活，无需任何环境变量。
 >   - **跳过提交前校验**：在 `submit_task(..., local_compile=0)` 上把本地 qiskit transpile 关掉；硬性的 IR 兼容性校验仍会执行（向 OriginQ 提交必须是 OriginIR、向 Quafu/IBM 提交必须是 OpenQASM 2.0）。同样地，`cloud_compile=0` 用来要求云端关闭自动编译。旧的 `auto_compile=` / `skip_validation=` 已删除。
 
 不要把 token 写进示例代码、日志或 issue。
@@ -86,8 +86,8 @@ uniqc backend chip-display originq/WK_C180 --update
 
 Cache 位置：
 
-- backend 列表 cache：`~/.uniqc/cache/backends.json`
-- 芯片标定 cache：`~/.uniqc/backend-cache/*.json`
+- backend 列表 cache：`~/.uniqc/backend/backends.json`
+- 芯片标定 cache：`~/.uniqc/backend/chips/`
 - 任务 cache：`~/.uniqc/cache/tasks.sqlite`
 
 用法建议：
@@ -145,16 +145,34 @@ task_id = submit_task(circuit, backend="dummy", shots=1000)
 result = wait_for_result(task_id, timeout=60)
 ```
 
+### 自定义含噪虚拟机（v0.0.16）
+
+`dummy:virtual:<name>` 从 `~/.uniqc/backend/virtual/<name>.yaml` 读取用户
+定义的拓扑、门噪声、读出噪声和 T1/T2 热弛豫。离线生命周期是：
+
+```bash
+uniqc backend virtual init my-machine
+# 编辑 ~/.uniqc/backend/virtual/my-machine.yaml
+uniqc backend virtual list
+uniqc backend virtual show my-machine
+uniqc backend virtual validate my-machine
+uniqc submit circuit.qasm --backend dummy:virtual:my-machine --shots 1000 --wait
+```
+
+`thermal_relaxation` 需要 `gate_times_ns`，T1/T2 用微秒表示且必须满足
+`t2_us <= 2 * t1_us`。它与 `dummy:local:virtual-line-N` 不同：后者是内置
+无噪拓扑 fixture；前者是具名的用户 YAML 含噪虚拟机。
+
 拓扑和芯片标定路径：
 
 ```python
-line_task = submit_task(circuit, backend="dummy:virtual-line-3", shots=1000)
+line_task = submit_task(circuit, backend="dummy:local:virtual-line-3", shots=1000)
 noisy_task = submit_task(circuit, backend="dummy:originq:WK_C180", shots=1000)
 ```
 
 > ⚠️ **历史问题已解决**：早期 `_route_with_fidelity` 的 `KeyError` 已在 `fix/audit-review` 上修复（NEW-U1）。`dummy:originq:<chip>` 路径已可正常使用。
 
-`dummy:originq:WK_C180` 这类写法的设计初衷是按真实 backend compile/transpile，再本地含噪执行；它是**提交规则**（`submit_task(backend=...)` 专用），不是 `backend list` / `find_backend(...)` 里的枚举项。`find_backend('dummy:originq:WK_C180')` 直接抛 `ValueError: Backend ... not found`；`list_backends()` 只返回显式注册的后端（`dummy`、`dummy:virtual-line-N`、`dummy:virtual-grid-RxC`、`dummy:mps:linear-N`，加全部真实云后端）。**0.0.13 起**，chip-backed compile 通道直接走核心依赖中的 qiskit，不再需要 `[qiskit]` extra；并且 `_compile_for_chip_backed_dummy` 的早返回 bug 已修复，每条线路（即便 active qubits 全在 `available_qubits` 里）都会真正执行 basis-gate compile，避免 H/CNOT 直接喂给 simulator 触发 `TopologyError`。
+`dummy:originq:WK_C180` 这类写法的设计初衷是按真实 backend compile/transpile，再本地含噪执行；它是**提交规则**（`submit_task(backend=...)` 专用），不是 `backend list` / `find_backend(...)` 里的枚举项。`find_backend('dummy:originq:WK_C180')` 直接抛 `ValueError: Backend ... not found`；`list_backends()` 只返回显式注册的后端（`dummy`、`dummy:local:virtual-line-N`、`dummy:local:virtual-grid-RxC`、`dummy:local:mps-linear-N`、`dummy:virtual:<name>`，加全部真实云后端）。**0.0.13 起**，chip-backed compile 通道直接走核心依赖中的 qiskit，不再需要 `[qiskit]` extra；并且 `_compile_for_chip_backed_dummy` 的早返回 bug 已修复，每条线路（即便 active qubits 全在 `available_qubits` 里）都会真正执行 basis-gate compile，避免 H/CNOT 直接喂给 simulator 触发 `TopologyError`。
 
 > ⚠️ **OriginQ backend ID 大小写规则（务必严格遵守）**：
 > - **真机 / `find_backend` / `submit_task` / `dry_run_task`**：必须使用大写 chip 名加 `originq:` 前缀，**不接受**小写或 `origin:` 前缀。例如 `originq:WK_C180` 可用，`originq:wk_c180` / `origin:WK_C180` / `origin:wk_c180` 全部抛 `ValueError`。

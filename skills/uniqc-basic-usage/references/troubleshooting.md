@@ -126,8 +126,8 @@ uniqc backend chip-display originq/WK_C180 --update
 |---|---|---|
 | `MPSSimulator: long-range 2q gate 'CNOT' on (0,3) is not supported` | MPS 不接受跨距 > 1 的双比特门 | 先 SWAP 到最近邻；或换 `Simulator(backend_type="statevector")` |
 | `NotImplementedError: MPSSimulator does not support CONTROL...` | 任意控制门不在 MPS 引擎支持范围内 | 把控制门展开到 `CNOT/CZ` 加单比特门，或换稠密模拟器 |
-| `MPSSimulator.simulate_pmeasure refuses to materialise a 2**N probability vector` | N > 24 时不允许展平 | 改用 `simulate_shots(...)`；或通过 `submit_task(..., backend="dummy:mps:linear-N")`，dummy adapter 内部自动走 shots 路径 |
-| `dummy:mps:linear-N` 跟 `noise_model` 一起用时报错 | MPS 路径强制无噪声 | 想要含噪 + 大 N？目前没有 tractable 的开箱方案；要么缩小 N 用 `dummy:<platform>:<chip>`，要么手动在测量后做 readout error mitigation |
+| `MPSSimulator.simulate_pmeasure refuses to materialise a 2**N probability vector` | N > 24 时不允许展平 | 改用 `simulate_shots(...)`；或通过 `submit_task(..., backend="dummy:local:mps-linear-N")`，dummy adapter 内部自动走 shots 路径 |
+| `dummy:local:mps-linear-N` 跟 `noise_model` 一起用时报错 | MPS 路径强制无噪声 | 想要含噪 + 大 N？目前没有 tractable 的开箱方案；要么缩小 N 用 `dummy:<platform>:<chip>`，要么手动在测量后做 readout error mitigation |
 | `sim.truncation_errors` 的最大值很大（≫ 1e-4） | `chi_max` 设小了，电路真实键维超过它 | 加大 `chi_max`（成本 O(χ³)）；或者承认这个电路对 MPS 不友好，换稠密 |
 | 结果跟预期相反，比如 GHZ 出来全 0 | bitstring 顺序约定 | uniqc 整体采用 **q0 = LSB** 约定；从右往左数第 0 位才是 q0。MPS 输出的 statevector 与 counts 都遵守这条 |
 

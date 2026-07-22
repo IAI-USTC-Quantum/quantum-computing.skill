@@ -49,7 +49,7 @@ uniqc doctor --ai-hints     # 附 AI 渐进提示
 2. **依赖**：核心依赖（numpy / typer / rich / scipy / pyyaml）+ 可选组（originq / quafu / quark / qiskit / simulation / visualization / pytorch）的安装版本。
 3. **配置**：每个平台的 token 是否配齐（脱敏显示前 6 字符）+ 缺失项给安装/配置命令提示。
 4. **任务 DB**：`~/.uniqc/cache/tasks.sqlite` 的 schema 版本、行数、是否需要 migrate。
-5. **后端 cache**：`~/.uniqc/cache/backends.json` 是否存在、最近一次 update 时间。
+5. **后端 cache**：`~/.uniqc/backend/backends.json` 是否存在、最近一次 update 时间。
 6. **平台连通性**：对配置过 token 的平台逐一做最低权限连通检查。
 
 如果用户问「为什么 submit 一直失败」「环境是不是装坏了」「`pip install unified-quantum[qiskit]` 还需要吗」，**先让他跑 `uniqc doctor`**，再据其输出对症下药。深入的纯 config 校验仍可用 `uniqc config validate` 与 `uniqc config list`。
@@ -113,14 +113,15 @@ dummy 是本地任务管理和结果查询流程的首选排练后端：
 
 ```bash
 uniqc submit bell.ir --backend dummy:local:simulator --shots 1000 --wait --format json
-uniqc submit bell.ir --backend dummy:virtual-line-3 --shots 1000 --wait
+uniqc submit bell.ir --backend dummy:local:virtual-line-3 --shots 1000 --wait
 uniqc submit bell.ir --backend dummy:originq:WK_C180 --shots 1000 --wait
-uniqc submit bell.ir --backend dummy:mps:linear-12 --shots 500 --wait
+uniqc submit bell.ir --backend dummy:local:mps-linear-12 --shots 500 --wait
 ```
 
 - `dummy:local:simulator`（裸 `dummy` 是同义）：无约束、无噪声本地虚拟机。
-- `dummy:virtual-line-N` / `dummy:virtual-grid-RxC`：虚拟拓扑，无噪声。
-- `dummy:mps:linear-N`：MPS / 张量网络模拟器（一维链）。
+- `dummy:local:virtual-line-N` / `dummy:local:virtual-grid-RxC`：内置虚拟拓扑，无噪声。
+- `dummy:virtual:<name>`：`~/.uniqc/backend/virtual/<name>.yaml` 声明的用户含噪虚拟机。
+- `dummy:local:mps-linear-N`：MPS / 张量网络模拟器（一维链）。
 - `dummy:<platform>:<backend>`：复用真实 backend 拓扑和标定数据做本地含噪执行。
 
 真实平台提交前，先列出 backend（这些 `backend` 子命令的 `--platform` 仍保留）：

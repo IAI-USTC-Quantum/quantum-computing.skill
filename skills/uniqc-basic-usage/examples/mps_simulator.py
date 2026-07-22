@@ -3,7 +3,7 @@
 Demonstrates two surfaces:
 
 1. Direct ``MPSSimulator`` API for very large 1-D nearest-neighbour circuits.
-2. ``dummy:mps:linear-N`` backend through ``submit_task`` / ``wait_for_result``.
+2. ``dummy:local:mps-linear-N`` backend through ``submit_task`` / ``wait_for_result``.
 
 Requires ``unified-quantum >= 0.0.11`` (the release that ships
 ``uniqc.simulator.MPSSimulator``).
@@ -38,11 +38,11 @@ def main() -> None:
     # 2) dummy backend with χ truncation forced via the identifier suffix.
     task = submit_task(
         c,
-        backend="dummy:mps:linear-64:chi=8:cutoff=1e-10",
+        backend="dummy:local:mps-linear-64:chi=8:cutoff=1e-10",
         shots=400,
     )
     result = wait_for_result(task, timeout=60)
-    print(f"dummy:mps:linear-64 result = {result}")
+    print(f"dummy:local:mps-linear-64 result = {result}")
 
 
 if __name__ == "__main__":

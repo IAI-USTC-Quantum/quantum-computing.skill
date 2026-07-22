@@ -25,7 +25,7 @@ Sections it prints (each as a Rich table):
    + remediation command if missing.
 5. **Task DB** — schema version + row count of `~/.uniqc/cache/tasks.sqlite`,
    migration warnings if any.
-6. **Backend cache** — `~/.uniqc/cache/backends.json` presence + last update.
+6. **Backend cache** — `~/.uniqc/backend/backends.json` presence + last update.
 7. **Platform connectivity** — minimum-permission ping for every configured
    platform.
 

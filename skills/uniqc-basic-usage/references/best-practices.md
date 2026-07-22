@@ -24,7 +24,7 @@ from uniqc import M3Mitigator, ReadoutEM, QuarkOptions, DummyOptions
 2. 导出 `originir`，必要时也导出 OpenQASM 2.0。所有公共 API（compile / simulate / submit）都接受 `AnyQuantumCircuit`：`Circuit` / OriginIR str / QASM2 str / `qiskit.QuantumCircuit` / pyqpanda3 circuit。
 3. 本地用 `Simulator()` 或 `uniqc simulate` 验证概率/采样结果。
 4. 用 `backend="dummy"` 跑通 API submit/wait/result，或用 `uniqc submit --backend dummy:local:simulator --wait` 跑通 CLI（0.0.13：单 `--backend` 标志，`--platform` 已移除）。
-5. 如果需要拓扑约束，改用 `dummy:virtual-line-N` 或 `dummy:virtual-grid-RxC`。
+5. 如果需要内置拓扑约束，改用 `dummy:local:virtual-line-N` 或 `dummy:local:virtual-grid-RxC`；需要自定义含噪机器则用 `dummy:virtual:<name>`。
 6. 如果需要真实芯片拓扑和标定噪声，改用 `dummy:<platform>:<backend>`，例如 `dummy:originq:WK_C180`。
 7. 真机提交前先 `dry_run_task(...)` 或 `uniqc submit --dry-run`，再小 shots 提交。
 8. 环境怀疑出问题先 `uniqc doctor`（0.0.13 新增，自带 6 项体检）。
@@ -32,9 +32,10 @@ from uniqc import M3Mitigator, ReadoutEM, QuarkOptions, DummyOptions
 ## Dummy Backend 语义
 
 - `dummy`: 等价于 `dummy:local:simulator`，无约束、无噪声的本地虚拟机。
-- `dummy:virtual-line-N`: N 比特线性拓扑，无噪声。
-- `dummy:virtual-grid-RxC`: R*C 比特网格拓扑，无噪声。
-- `dummy:mps:linear-N`: MPS / 张量网络模拟器（一维链）。
+- `dummy:local:virtual-line-N`: N 比特线性拓扑，无噪声。
+- `dummy:local:virtual-grid-RxC`: R*C 比特网格拓扑，无噪声。
+- `dummy:virtual:<name>`: `~/.uniqc/backend/virtual/<name>.yaml` 定义的用户含噪虚拟机。
+- `dummy:local:mps-linear-N`: MPS / 张量网络模拟器（一维链）。
 - `dummy:<platform>:<backend>`: 规则型 backend id；提交时按真实 backend 拓扑和门集 compile/transpile，保存编译后线路，再用本地含噪 dummy 执行。0.0.13 修复：之前的早返回会跳过 transpile 让 Bell 电路抛 `TopologyError`，现在每条都会真正 compile。
 
 `dummy:<platform>:<backend>` 不会作为独立 backend 出现在 `uniqc backend list` 或 WebUI backend 卡片中。

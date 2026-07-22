@@ -1,0 +1,31 @@
+name: Validate Skills
+
+on:
+  pull_request:
+  push:
+    branches: [main, fix/v0.0.17-stabilization]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate Skill structure and local links
+        run: >-
+          python .claude/skills/uniqc-version-tracker/examples/validate_skill_repository.py
+          --repo-path . --json
+      - name: Install the aligned runtime
+        run: pip install "unified-quantum==0.0.17"
+      - name: Run offline smoke aggregate
+        run: >-
+          python .claude/skills/uniqc-version-tracker/examples/aggregate_report.py
+          --smoke-dir .claude/skills/uniqc-version-tracker/examples/smoke-tests
+          --json-summary smoke-summary.json
+      - name: Upload smoke summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-summary
+          path: smoke-summary.json

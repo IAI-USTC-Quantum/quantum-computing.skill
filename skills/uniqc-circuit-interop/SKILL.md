@@ -29,11 +29,11 @@ helps users:
 
 | User goal                                                       | Read first                                                  |
 | --------------------------------------------------------------- | ----------------------------------------------------------- |
-| "Build a circuit in uniqc, save as OriginIR / QASM2"            | [references/authoring-and-export.md](references/authoring-and-export.md) |
+| "Build a circuit in uniqc, save as OriginIR / QASM2"            | [uniqc-basic-usage circuit building](../uniqc-basic-usage/references/circuit-building.md) |
 | "Convert qiskit `QuantumCircuit` ↔ uniqc `Circuit`"             | [references/qiskit-interop.md](references/qiskit-interop.md) |
 | "Convert pyqpanda3 ↔ uniqc"                                     | [references/pyqpanda3-interop.md](references/pyqpanda3-interop.md) |
 | "Parse an OriginIR / QASM2 file into a `Circuit`"               | [references/parsing.md](references/parsing.md)              |
-| "What does each platform's submit pipeline want?"               | [references/per-platform-ir.md](references/per-platform-ir.md) |
+| "What does each platform's submit pipeline want?"               | **OriginIR-ext vs official OriginIR** below |
 
 ## Mental model
 

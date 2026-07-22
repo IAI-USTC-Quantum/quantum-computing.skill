@@ -1,6 +1,6 @@
 ---
 name: uniqc-basic-usage
-description: "Use when the user asks about UnifiedQuantum or uniqc basic usage: installation, Python imports, Circuit construction (incl. AnyQuantumCircuit input across Circuit / OriginIR / QASM2 / qiskit / pyqpanda3), OriginIR/OpenQASM export, local simulation with the unified `Simulator` / `NoisySimulator` (incl. MPS / matrix-product-state / tensor network on linear topology), CLI help, config, `uniqc doctor` diagnostics, dummy backends (`dummy:virtual-line-N`, `dummy:mps:linear-N`), `uniqc submit --backend <provider>:<chip>` (single-flag CLI, no more `--platform`), dry-run, backend discovery/cache, simple cloud submission, result queries (`get_result` / `poll_result` / `wait_for_result`), calibration, QEM, timeline visualization, and first-pass troubleshooting. Provide practical runnable workflows for getting started and validating common UnifiedQuantum tasks."
+description: "Use when the user asks about UnifiedQuantum or uniqc basic usage: installation, Python imports, Circuit construction (incl. AnyQuantumCircuit input across Circuit / OriginIR / QASM2 / qiskit / pyqpanda3), OriginIR/OpenQASM export, local simulation with the unified `Simulator` / `NoisySimulator` (incl. MPS / matrix-product-state / tensor network on linear topology), CLI help, config, `uniqc doctor` diagnostics, dummy backends (`dummy:local:virtual-line-N`, `dummy:local:mps-linear-N`, user YAML `dummy:virtual:<name>`), `uniqc submit --backend <provider>:<chip>` (single-flag CLI, no more `--platform`), dry-run, backend discovery/cache, simple cloud submission, result queries (`get_result` / `poll_result` / `wait_for_result`), calibration, QEM, timeline visualization, and first-pass troubleshooting. Provide practical runnable workflows for UnifiedQuantum v0.0.17."
 ---
 
 # Uniqc Basic Usage Skill
@@ -9,7 +9,7 @@ Use this skill to help agents handle common UnifiedQuantum usage. Prefer direct,
 
 ## Core Mental Model
 
-UnifiedQuantum (current **0.0.13 release**) has six common surfaces:
+UnifiedQuantum (current **0.0.17 release**) has six common surfaces:
 
 1. **Circuit authoring**: build circuits with top-level `uniqc.Circuit`, then export OriginIR or OpenQASM. Public APIs (compile / simulate / submit) accept the unified `AnyQuantumCircuit` type — `Circuit` / OriginIR `str` / OpenQASM 2.0 `str` / `qiskit.QuantumCircuit` / pyqpanda3 circuit — and normalize internally via `normalize_to_circuit()`.
 2. **Local simulation**: validate circuits with `uniqc simulate` or the unified `Simulator` / `NoisySimulator` before spending cloud quota. Format (OriginIR vs QASM 2.0) is auto-detected at runtime.
@@ -45,11 +45,12 @@ Use these defaults unless the user gives a reason not to:
 - Build circuits in Python with `Circuit` (or any `AnyQuantumCircuit` form), export `originir` / `qasm`, then run CLI or simulator workflows on the normalized file. `Circuit.to_qiskit_circuit()` and `Circuit.to_pyqpanda3_circuit()` are first-class converters when you need the other in-process types.
 - Use explicit dummy backend ids:
   - `dummy` (alias for `dummy:local:simulator`): unconstrained, noiseless local virtual machine.
-  - `dummy:virtual-line-N` / `dummy:virtual-grid-RxC`: constrained virtual topology, noiseless.
-  - `dummy:mps:linear-N`: MPS (matrix-product state / tensor network) simulator on a linear-N topology — much better scaling for low-entanglement circuits.
+  - `dummy:local:virtual-line-N` / `dummy:local:virtual-grid-RxC`: constrained virtual topology, noiseless.
+  - `dummy:virtual:<name>`: a user-defined YAML topology and noise model at `~/.uniqc/backend/virtual/<name>.yaml`; create and validate it with `uniqc backend virtual init|validate <name>` before submitting.
+  - `dummy:local:mps-linear-N`: MPS (matrix-product state / tensor network) simulator on a linear-N topology — much better scaling for low-entanglement circuits.
   - `dummy:<platform>:<backend>` (e.g. `dummy:originq:WK_C180`): real backend topology and calibration, compile/transpile, then local noisy execution. As of 0.0.13 this **always** runs the basis-gate compile pass — the previous early-return that silently skipped transpile for in-region active qubits was removed (a Bell circuit no longer crashes with `TopologyError`).
 - Run `dry_run_task(...)` or `uniqc submit --dry-run` before real-device submission.
-- **`uniqc submit` CLI** (0.0.13 breaking): `--platform` / `-p` is **gone**. Use a single `--backend <provider>:<chip>` flag (e.g. `--backend originq:WK_C180`, `--backend ibm:ibm_fez`, `--backend dummy:local:simulator`, `--backend dummy:originq:WK_C180`, `--backend dummy:virtual-line-3`, `--backend dummy:mps:linear-12`). Omitting `--backend` defaults to `dummy:local:simulator`. Bare `dummy` is accepted as an alias. Other CLI subcommands (`uniqc backend update --platform`, `uniqc task list --platform`, `uniqc result --platform`) **still accept** `--platform` — they scope cache/storage operations.
+- **`uniqc submit` CLI** (0.0.13 breaking): `--platform` / `-p` is **gone**. Use a single `--backend <provider>:<chip>` flag (e.g. `--backend originq:WK_C180`, `--backend ibm:ibm_fez`, `--backend dummy:local:simulator`, `--backend dummy:originq:WK_C180`, `--backend dummy:local:virtual-line-3`, `--backend dummy:virtual:my-machine`, `--backend dummy:local:mps-linear-12`). Omitting `--backend` defaults to `dummy:local:simulator`. Bare `dummy` is accepted as an alias. Other CLI subcommands (`uniqc backend update --platform`, `uniqc task list --platform`, `uniqc result --platform`) **still accept** `--platform` — they scope cache/storage operations.
 - For CLI-heavy AI-agent work, enable progressive hints once with `uniqc config always-ai-hint on`, or pass `--ai-hints` / `--ai-hint` on individual commands.
 - Use `uniqc backend update`, `list`, `show`, and `chip-display` before real-device submission. As of 0.0.13, `uniqc backend update --platform ibm|quafu|quark` actually refreshes the on-disk chip cache via each adapter's `get_chip_characterization` (previously raised "Cache refresh not implemented for provider …" for IBM and the others).
 - Use `RegionSelector` or backend characterization data when hardware quality and topology matter.
@@ -163,15 +164,15 @@ If the user only needs the CLI, use `uv tool install unified-quantum`. If the us
 - Calibration module: `uniqc.calibration` (XEB, readout calibration, `XEBResult`, `ReadoutCalibrationResult`)
 - QEM module: `uniqc.qem` (`M3Mitigator`, `ReadoutEM`, `StaleCalibrationError`, `ZNE`). All mitigators expose a `.apply(unified_result)` pipeline-style API that returns a new `UnifiedResult` with mitigated counts/probabilities — feed it directly into the rest of the workflow. Legacy `mitigate_counts` / `mitigate_probabilities` still exist for raw-dict input. **`ZNE` is a placeholder** that raises `NotImplementedError`; only readout mitigation is currently implemented.
 - Visualization module: `uniqc.visualization` (`circuit_to_html`, `plot_time_line_html`, `schedule_circuit`)
-- Algorithms workflows: `uniqc.algorithms.workflows` (`xeb_workflow`, `readout_em_workflow`). Note: VQE/QAOA/QNN training loops live in `uniqc.algorithms.core.training` (needs `[pytorch] + torchquantum`, install manually).
+- Algorithms workflows: `uniqc.algorithms.workflows` (`xeb_workflow`, `readout_em_workflow`). Note: VQE/QAOA/QNN training loops live in `uniqc.algorithms.core.training` (needs `[pytorch]`, which installs `torch` + `torchquantum-ng`).
 - Algorithm fragments (return new `Circuit`): `hea`, `qaoa_ansatz`, `uccsd_ansatz`, `qft_circuit`, `qpe_circuit`, `ghz_state`, `w_state`, `dicke_state_circuit`, `cluster_state`, `grover_oracle`, `grover_diffusion`, `amplitude_estimation_circuit`, `vqd_ansatz`, `thermal_state_circuit`, `deutsch_jozsa_circuit`. Legacy `fn(circuit, ...)` in-place form still works but emits `DeprecationWarning`. `qpe_circuit(n_precision, unitary_circuit, *, state_prep=None, controlled_power=None, measure=True)` returns a fresh `Circuit` with `n_system + n_precision` qubits and (by default) measurements on the precision register; the integer ``m`` decoded from the measured cbits gives ``φ ≈ m / 2**n_precision``. (uniqc ≥ 0.0.11.dev30, C-U9.)
 - Measurement helpers: `uniqc.algorithms.core.measurement` — functions (`pauli_expectation`, `basis_rotation_measurement`, `classical_shadow`, `shadow_expectation`, `state_tomography`, `tomography_summary`) **and** classes (`PauliExpectation`, `StateTomography`, `ClassicalShadow`, `BasisRotationMeasurement`) with `.get_readout_circuits()` + `.execute(backend)` API. `pauli_expectation` / `PauliExpectation` accept three Pauli-string forms (C-U2, uniqc ≥ 0.0.11.dev30): compact `"ZIZ"` (length = n_qubit), indexed `"Z0Z1"`, and tuple-list `[("Z", 0), ("Z", 1)]`. `basis_rotation_measurement` now raises `ValueError` if the input circuit has no `MEASURE` instructions (C-U5, was previously a silent no-op for X/Y bases). `tomography_summary` is pure NumPy/SciPy (no qutip) and returns a dict with `eigenvalues / purity / trace / is_pure / fidelity`; pass `print_summary=False` to suppress the formatted stdout output.
 - BackendOptions hierarchy: `BackendOptions`, `OriginQOptions`, `QuafuOptions`, `QuarkOptions`, `IBMOptions`, `DummyOptions`. Use `BackendOptionsFactory().create_default('originq')` for a sane default; `BackendOptionsFactory().from_kwargs(platform, **kwargs)` builds from explicit kwargs.
 - Gateway / web UI: `uniqc gateway start [--port N --host HOST]` starts the local task dashboard; manage it with `uniqc gateway status / stop / restart`.
 - AI CLI hints: `--ai-hints` / `--ai-hint`, `UNIQC_AI_HINTS=1`, or `uniqc config always-ai-hint on`
 - Local task cache: `~/.uniqc/cache/tasks.sqlite`
-- Backend cache: `~/.uniqc/cache/backends.json`
-- Chip characterization cache: `~/.uniqc/backend-cache/*.json`
+- Backend cache: `~/.uniqc/backend/backends.json`
+- Chip characterization cache: `~/.uniqc/backend/chips/`
 - Calibration cache: `~/.uniqc/calibration_cache/`
 
 ## Response Style
