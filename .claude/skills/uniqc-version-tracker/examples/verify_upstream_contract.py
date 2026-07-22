@@ -32,7 +32,11 @@ def git(repo: Path, *args: str) -> subprocess.CompletedProcess[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-path", required=True, type=Path, help="UnifiedQuantum checkout")
-    parser.add_argument("--expected-commit", default="d1794d1", help="v0.0.17 contract commit")
+    parser.add_argument(
+        "--expected-commit",
+        default="ff3f328ff75aacf552feb23643b5193a6690626c",
+        help="v0.0.17 release-candidate contract commit",
+    )
     args = parser.parse_args()
 
     repo = args.repo_path.resolve()

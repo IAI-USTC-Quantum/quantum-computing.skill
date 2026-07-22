@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
         with:
           repository: IAI-USTC-Quantum/UnifiedQuantum
-          ref: fix/v0.0.17-stabilization
+          ref: ff3f328ff75aacf552feb23643b5193a6690626c
           path: UnifiedQuantum
           fetch-depth: 0
           submodules: recursive
@@ -37,7 +37,8 @@ jobs:
       - name: Verify upstream contracts
         run: >-
           python .claude/skills/uniqc-version-tracker/examples/verify_upstream_contract.py
-          --repo-path UnifiedQuantum --expected-commit d1794d1
+          --repo-path UnifiedQuantum
+          --expected-commit ff3f328ff75aacf552feb23643b5193a6690626c
 
       - name: Install the aligned runtime
         run: |
