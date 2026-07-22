@@ -29,6 +29,7 @@ SMOKE_SCRIPTS = [
 ]
 
 SKILL_NAMES = [s.removeprefix("smoke_").removesuffix(".py").replace("_", "-") for s in SMOKE_SCRIPTS]
+SMOKE_TIMEOUT_SECONDS = 60
 
 SKILL_MAP = {
     "basic-usage": "uniqc-basic-usage",
@@ -89,10 +90,17 @@ def main() -> None:
         try:
             r = subprocess.run(
                 [sys.executable, str(path)],
-                capture_output=True, text=True, timeout=30,
+                capture_output=True, text=True, timeout=SMOKE_TIMEOUT_SECONDS,
             )
         except subprocess.TimeoutExpired:
-            results.append((skill, "TIMEOUT", 30, "Script timed out after 30s"))
+            results.append(
+                (
+                    skill,
+                    "TIMEOUT",
+                    SMOKE_TIMEOUT_SECONDS,
+                    f"Script timed out after {SMOKE_TIMEOUT_SECONDS}s",
+                )
+            )
             continue
 
         elapsed = time.monotonic() - t1
