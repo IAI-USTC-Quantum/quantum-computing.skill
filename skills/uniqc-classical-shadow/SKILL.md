@@ -19,8 +19,8 @@ classical shadow under `uniqc.algorithms.core.measurement`
 | "Estimate ⟨P⟩ for one Pauli string"                              | [references/api.md](references/api.md) (`shadow_expectation`) |
 | "Estimate many ⟨P⟩ values from one dataset"                      | [references/api.md](references/api.md) (`run_classical_shadow_workflow`) |
 | "I have a Hamiltonian — give me ⟨H⟩"                             | [references/hamiltonian.md](references/hamiltonian.md)  |
-| "When should I use shadow vs full state tomography?"             | [references/vs-tomography.md](references/vs-tomography.md) |
-| "What's the variance / how many shots do I need?"                | [references/sample-complexity.md](references/sample-complexity.md) |
+| "When should I use shadow vs full state tomography?"             | **Practical defaults** below |
+| "What's the variance / how many shots do I need?"                | **Practical defaults** below |
 
 ## Mental model
 

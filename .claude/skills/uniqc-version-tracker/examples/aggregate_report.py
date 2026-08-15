@@ -1,11 +1,12 @@
-"""Run all smoke tests and print an aggregated markdown report.
+"""Run all smoke tests and emit human- and machine-readable summaries.
 
 Usage:
-    python aggregate_report.py --smoke-dir ./smoke-tests
+    python aggregate_report.py --smoke-dir ./smoke-tests --json-summary smoke-summary.json
 """
 from __future__ import annotations
 
 import argparse
+import json
 import subprocess
 import sys
 import time
@@ -28,6 +29,7 @@ SMOKE_SCRIPTS = [
 ]
 
 SKILL_NAMES = [s.removeprefix("smoke_").removesuffix(".py").replace("_", "-") for s in SMOKE_SCRIPTS]
+SMOKE_TIMEOUT_SECONDS = 60
 
 SKILL_MAP = {
     "basic-usage": "uniqc-basic-usage",
@@ -49,6 +51,11 @@ SKILL_MAP = {
 def main() -> None:
     ap = argparse.ArgumentParser(description="Aggregate smoke test results.")
     ap.add_argument("--smoke-dir", required=True, help="Path to smoke-tests directory")
+    ap.add_argument(
+        "--json-summary",
+        type=Path,
+        help="Write the machine-readable result summary to this path.",
+    )
     args = ap.parse_args()
 
     smoke_dir = Path(args.smoke_dir).resolve()
@@ -83,23 +90,33 @@ def main() -> None:
         try:
             r = subprocess.run(
                 [sys.executable, str(path)],
-                capture_output=True, text=True, timeout=30,
+                capture_output=True, text=True, timeout=SMOKE_TIMEOUT_SECONDS,
             )
         except subprocess.TimeoutExpired:
-            results.append((skill, "TIMEOUT", 30, "Script timed out after 30s"))
+            results.append(
+                (
+                    skill,
+                    "TIMEOUT",
+                    SMOKE_TIMEOUT_SECONDS,
+                    f"Script timed out after {SMOKE_TIMEOUT_SECONDS}s",
+                )
+            )
             continue
 
         elapsed = time.monotonic() - t1
-        status = "PASS" if r.returncode == 0 else "FAIL"
-
+        output = (r.stdout or "").strip()
+        skip_lines = [line for line in output.splitlines() if line.startswith("SKIP:")]
         if r.returncode != 0:
-            diag = r.stderr.strip()[-200:]
+            status = "FAIL"
+            diag = (r.stderr or output).strip()[-200:]
+        elif skip_lines:
+            diag = skip_lines[-1]
+            status = "SKIP" if "optional dependency" in diag.lower() else "FAIL"
+            if status == "FAIL":
+                diag = f"Invalid SKIP (only missing optional dependencies may skip): {diag}"
         else:
-            diag = r.stdout.strip().split("\n")[-1]
-
-        if r.returncode == 0 and "SKIP:" in (r.stdout or ""):
-            status = "SKIP"
-            diag = r.stdout.strip().split("\n")[-1]
+            status = "PASS"
+            diag = output.split("\n")[-1] if output else "-"
 
         results.append((skill, status, elapsed, diag or "-"))
 
@@ -111,8 +128,39 @@ def main() -> None:
             passed += 1
 
     total = time.monotonic() - t0
+    failed = sum(status in {"FAIL", "ERROR", "TIMEOUT"} for _, status, _, _ in results)
+    skipped = sum(status == "SKIP" for _, status, _, _ in results)
+    summary = {
+        "ok": failed == 0,
+        "uniqc_version": uniqc_ver,
+        "total": len(results),
+        "passed": passed,
+        "skipped": skipped,
+        "failed": failed,
+        "duration_seconds": round(total, 3),
+        "results": [
+            {
+                "skill": skill,
+                "status": status,
+                "duration_seconds": round(elapsed, 3),
+                "diagnostic": diag,
+            }
+            for skill, status, elapsed, diag in results
+        ],
+    }
     print()
-    print(f"**{passed}/{len(results)} skills pass ({100*passed/len(results):.0f}%)**  (total: {total:.1f}s)")
+    print(
+        f"**{passed}/{len(results)} skills pass ({100*passed/len(results):.0f}%), "
+        f"{skipped} skipped, {failed} failed**  (total: {total:.1f}s)"
+    )
+    print(f"JSON summary: {json.dumps(summary, ensure_ascii=False, sort_keys=True)}")
+    if args.json_summary:
+        args.json_summary.write_text(
+            json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+    if failed:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

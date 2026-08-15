@@ -141,7 +141,7 @@ counts = sim.simulate_shots(circuit.originir, shots=4096)
 |---|---|
 | ≤ 24 比特、任意拓扑、要 statevector | `Simulator(backend_type="statevector")` |
 | ≤ 28 比特、任意拓扑、要噪声 | `NoisySimulator` 或 `dummy:<platform>:<chip>` |
-| > 28 比特、一维 NN、纠缠浅 | **`MPSSimulator` / `dummy:mps:linear-N`** |
+| > 28 比特、一维 NN、纠缠浅 | **`MPSSimulator` / `dummy:local:mps-linear-N`** |
 | > 28 比特、深随机电路 | 没有 tractable 方案，请缩小比特数 |
 
 直接 API：
@@ -171,14 +171,14 @@ print(sim.max_bond, sim.truncation_errors[-3:])
 ```python
 from uniqc import submit_task, wait_for_result
 
-task = submit_task(circuit, backend="dummy:mps:linear-32:chi=64:cutoff=1e-10", shots=500)
+task = submit_task(circuit, backend="dummy:local:mps-linear-32:chi=64:cutoff=1e-10", shots=500)
 result = wait_for_result(task, timeout=60)
 ```
 
 后端 identifier 语法：
 
 ```
-dummy:mps:linear-<N>[:chi=<int>][:cutoff=<float>][:seed=<int>]
+dummy:local:mps-linear-<N>[:chi=<int>][:cutoff=<float>][:seed=<int>]
 ```
 
 约束（dry-run 阶段就会检查）：
@@ -188,7 +188,7 @@ dummy:mps:linear-<N>[:chi=<int>][:cutoff=<float>][:seed=<int>]
 - **不支持任何噪声**（`dummy:mps:*` 总是理想模拟）；要噪声请改 `dummy:<platform>:<chip>`。
 - 支持的门：`H X Y Z S T SX I` / `RX RY RZ U1 U2 U3 RPhi RPhi90 RPhi180` / `CNOT CZ SWAP ISWAP ECR` / `XX(θ) YY(θ) ZZ(θ) XY(θ) PHASE2Q`.
 - OriginIR 参数语法是 `XX q[0],q[1],(theta)`，**不是** `XX(theta) q[0],q[1]`。
-- `simulate_pmeasure` 与 `simulate_statevector` 仍然会展平为 2^N 向量，因此在 N > 24 时会拒绝；请改用 `simulate_shots`（或 `submit_task` + `dummy:mps:linear-N`，后者内部就走 shots 路径）。
+- `simulate_pmeasure` 与 `simulate_statevector` 仍然会展平为 2^N 向量，因此在 N > 24 时会拒绝；请改用 `simulate_shots`（或 `submit_task` + `dummy:local:mps-linear-N`，后者内部就走 shots 路径）。
 
 诊断字段：
 
@@ -205,7 +205,7 @@ from uniqc import submit_task, submit_batch, wait_for_result
 task_id = submit_task(circuit, backend="dummy", shots=1000)
 result = wait_for_result(task_id, timeout=60)
 
-line_task = submit_task(circuit, backend="dummy:virtual-line-3", shots=1000)
+line_task = submit_task(circuit, backend="dummy:local:virtual-line-3", shots=1000)
 noisy_task = submit_task(circuit, backend="dummy:originq:WK_C180", shots=1000)
 quark_noisy = submit_task(circuit, backend="dummy:quark:Baihua", shots=1000)
 
@@ -217,7 +217,7 @@ CLI（uniqc ≥ 0.0.13：单一 `--backend` 标志，`--platform` 已移除；�
 
 ```bash
 uniqc submit bell.ir --backend dummy:local:simulator --shots 1000 --wait --format json
-uniqc submit bell.ir --backend dummy:virtual-line-3 --shots 1000 --wait
+uniqc submit bell.ir --backend dummy:local:virtual-line-3 --shots 1000 --wait
 uniqc submit bell.ir --backend dummy:originq:WK_C180 --shots 1000 --wait
 uniqc submit bell.ir --backend dummy:quark:Baihua --shots 1000 --wait
 ```

@@ -65,7 +65,7 @@ pip index versions unified-quantum 2>/dev/null | head -1
 Or run the helper script:
 
 ```bash
-python .claude/skills/uniqc-version-tracker/examples/detect_version.py --claude-md CLAUDE.md
+python .claude/skills/uniqc-version-tracker/examples/detect_version.py --repo-path .
 ```
 
 If the installed version is newer than the CLAUDE.md baseline, a gap exists — proceed to Phase 2.
@@ -124,8 +124,37 @@ Or run all sequentially with the aggregator for a quick check:
 
 ```bash
 python .claude/skills/uniqc-version-tracker/examples/aggregate_report.py \
-  --smoke-dir .claude/skills/uniqc-version-tracker/examples/smoke-tests
+  --smoke-dir .claude/skills/uniqc-version-tracker/examples/smoke-tests \
+  --json-summary smoke-summary.json
 ```
+
+The aggregator exits nonzero for every `FAIL`, `ERROR`, `TIMEOUT`, or invalid
+`SKIP`. Only a missing optional dependency may emit `SKIP:` and keep the
+aggregate green.
+
+## Fast structural and parity gates
+
+Run this offline gate before every PR; it blocks broken local links, missing
+Skill front matter, and missing reference targets:
+
+```bash
+python .claude/skills/uniqc-version-tracker/examples/validate_skill_repository.py \
+  --repo-path . --json
+```
+
+For release parity, point the Skill-side checker at a UnifiedQuantum checkout:
+
+```bash
+python .claude/skills/uniqc-version-tracker/examples/verify_upstream_contract.py \
+  --repo-path ../UnifiedQuantum
+```
+
+It checks the v0.0.17 commit, Python/CMake ranges, PyTorch extra, cache/config
+paths, backend grammar, CLI lifecycle/flag, cloud-test opt-in default, and the
+0.1.0 deprecation cliff. The UnifiedQuantum PR workflow should invoke this
+script with `--repo-path "$GITHUB_WORKSPACE"` after checking out this Skill
+repository (or its release artifact); no main-repository file change is needed
+for the checker itself.
 
 The 13 smoke tests and their expected times:
 

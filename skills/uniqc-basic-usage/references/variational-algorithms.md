@@ -34,7 +34,7 @@ from uniqc import EntanglingGate, EntanglementTopology, RotationGate
 > - **fragment 风格（推荐 / 当前默认）**：返回新 `Circuit`，可与 `add_circuit` 拼接 —— `hea / qaoa_ansatz / uccsd_ansatz / qft_circuit / qpe_circuit / ghz_state / w_state / dicke_state_circuit / cluster_state / grover_oracle / grover_diffusion / amplitude_estimation_circuit / vqd_ansatz / thermal_state_circuit / deutsch_jozsa_circuit`（见 `uniqc/algorithms/core/circuits/`）。
 > - **in-place 风格（已弃用，仍可调）**：`fn(circuit, ...)` 第一个参数传现有 `Circuit` 时**就地修改**并返回 `None`，调用时会发 `DeprecationWarning`。新代码请只用 fragment 风格。
 > 
-> 完整测量类（`PauliExpectation / StateTomography / ClassicalShadow / BasisRotationMeasurement`）的设计见 [Algorithm Design](../../UnifiedQuantum/docs/source/guide/algorithm_design.md) 或 `from uniqc import PauliExpectation, StateTomography, ClassicalShadow, BasisRotationMeasurement`。
+> 完整测量类（`PauliExpectation / StateTomography / ClassicalShadow / BasisRotationMeasurement`）的设计见 [Algorithm Design](https://github.com/IAI-USTC-Quantum/UnifiedQuantum/blob/main/docs/source/2_advanced/algorithm_design.md) 或 `from uniqc import PauliExpectation, StateTomography, ClassicalShadow, BasisRotationMeasurement`。
 
 ## Ansatz 类型系统（uniqc ≥ 0.0.13）
 

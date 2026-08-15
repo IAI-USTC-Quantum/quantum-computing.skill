@@ -40,7 +40,7 @@ import shutil
 snapshot_dir = Path("~/uniqc-snapshots").expanduser()
 snapshot_dir.mkdir(exist_ok=True)
 
-src = Path("~/.uniqc/backend-cache/originq__WK_C180.json").expanduser()
+src = Path("~/.uniqc/backend/chips/originq-WK_C180.json").expanduser()
 prev = snapshot_dir / "WK_C180.prev.json"
 curr = snapshot_dir / "WK_C180.curr.json"
 

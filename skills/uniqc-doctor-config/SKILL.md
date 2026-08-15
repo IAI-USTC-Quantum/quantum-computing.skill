@@ -44,7 +44,8 @@ It prints six Rich tables in order:
 5. **Task DB** — `~/.uniqc/cache/tasks.sqlite` schema version, row
    count, migration warnings (schema bumps from 2 → 5 happen on
    first use).
-6. **Backend cache** — `~/.uniqc/cache/backends.json` size + last update
+6. **Backend cache** — `~/.uniqc/backend/backends.json` size + last update;
+   user virtual-machine YAML files live in `~/.uniqc/backend/virtual/`.
    timestamp.
 7. **Platform connectivity** — minimum-permission ping for each
    configured platform.
@@ -70,6 +71,11 @@ It prints six Rich tables in order:
 - After installing a platform extra, you usually also need
   `uniqc backend update --platform <p>` (the cache is per-process and
   lazy).
+- For a local custom backend, use the offline lifecycle `uniqc backend virtual
+  init <name>`, edit `~/.uniqc/backend/virtual/<name>.yaml`, then
+  `list`, `show`, and `validate` before
+  `uniqc submit ... --backend dummy:virtual:<name>`. A virtual machine may
+  model `noise.thermal_relaxation` only when `gate_times_ns` is present.
 - For `MissingDependencyError`, **read the error message verbatim** —
   uniqc 0.0.13 enriched every public-facing error with a doc link and
   the exact `pip install ...` command. Do not guess; copy.
@@ -170,8 +176,8 @@ MEASURE q[1],c[1]' --backend dummy:local:simulator --shots 100 --wait
   `get_quark_config()` / `get_quafu_config()`.
 - File locations: `~/.uniqc/config.yaml`,
   `~/.uniqc/cache/tasks.sqlite`,
-  `~/.uniqc/cache/backends.json`,
-  `~/.uniqc/backend-cache/*.json`,
+  `~/.uniqc/backend/backends.json`,
+  `~/.uniqc/backend/chips/`,
   `~/.uniqc/calibration_cache/`.
 
 ## Response style

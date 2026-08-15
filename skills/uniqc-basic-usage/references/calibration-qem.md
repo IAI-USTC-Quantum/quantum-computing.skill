@@ -40,7 +40,7 @@ from uniqc.algorithms.workflows import xeb_workflow
 
 # 1q XEB -- pass the backend identifier (string), not an adapter object.
 results_1q = xeb_workflow.run_1q_xeb_workflow(
-    backend="dummy:virtual-line-3",
+    backend="dummy:local:virtual-line-3",
     qubits=[0, 1, 2, 3],
     shots=1000,
     depths=[5, 10, 20, 40],
@@ -50,7 +50,7 @@ print(results_1q[0].fidelity_per_layer)
 
 # 2q XEB -- the keyword is `pairs=`, not `qubit_pairs=`.
 results_2q = xeb_workflow.run_2q_xeb_workflow(
-    backend="dummy:virtual-line-3",
+    backend="dummy:local:virtual-line-3",
     pairs=[(0, 1), (1, 2)],
     shots=1000,
     depths=[5, 10, 20],
@@ -164,7 +164,7 @@ identifier:
 from uniqc.algorithms.workflows import readout_em_workflow
 
 em = readout_em_workflow.run_readout_em_workflow(
-    backend="dummy:virtual-line-3", qubits=[0, 1], shots=1000,
+    backend="dummy:local:virtual-line-3", qubits=[0, 1], shots=1000,
 )
 corrected = em.mitigate_counts(raw_counts, measured_qubits=[0, 1])
 ```

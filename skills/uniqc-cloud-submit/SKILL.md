@@ -223,7 +223,7 @@ print(result.counts, result.shots, result.platform)
   `get_quafu_config()`, `get_quark_config()`, `get_ibm_config()`,
   `has_platform_credentials("originq")`.
 - Caches: `~/.uniqc/config.yaml`, `~/.uniqc/cache/tasks.sqlite`,
-  `~/.uniqc/cache/backends.json`, `~/.uniqc/backend-cache/*.json`.
+  `~/.uniqc/backend/backends.json`, `~/.uniqc/backend/chips/`.
 
 ## Response style
 

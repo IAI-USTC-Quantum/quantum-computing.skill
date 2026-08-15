@@ -15,7 +15,7 @@ against vendor-published or cached chip data.
 
 > Why this matters: real chips drift on the order of hours (T1, T2,
 > readout) and weeks (median 2q fidelity). The local backend cache
-> (`~/.uniqc/cache/backends.json` + `~/.uniqc/backend-cache/*.json`)
+> (`~/.uniqc/backend/backends.json` + `~/.uniqc/backend/chips/`)
 > is **lazy** — `find_backend(...)` happily returns rows that are
 > days stale. Pre-0.0.13, `uniqc backend update --platform ibm` even
 > reported success while writing nothing.
@@ -27,8 +27,8 @@ against vendor-published or cached chip data.
 | "Is my local chip cache fresh? Refresh it and tell me what changed." | [references/cache-freshness.md](references/cache-freshness.md) |
 | "Verify the topology / coupling map / available qubits."          | [references/topology-audit.md](references/topology-audit.md)     |
 | "Compare measured 1q/2q/readout fidelity to claimed."             | [references/fidelity-audit.md](references/fidelity-audit.md)     |
-| "Run the full audit and produce a report."                        | [references/audit-report.md](references/audit-report.md)         |
-| "Detect drift across two snapshots of the same chip."             | [references/drift-detection.md](references/drift-detection.md)   |
+| "Run the full audit and produce a report."                        | **End-to-end audit recipe** below                                  |
+| "Detect drift across two snapshots of the same chip."             | [references/cache-freshness.md](references/cache-freshness.md)   |
 
 ## End-to-end audit recipe (the one users actually want)
 
@@ -105,17 +105,17 @@ for q in target:
   → refresh the chip cache then re-build.
 - **Two snapshots compared** — diff today's audit against last
   week's; flag pairs whose `Δ` between the two runs exceeds 2σ of the
-  individual fits. See `drift-detection.md`.
+  individual fits. Use the snapshot procedure in `cache-freshness.md`.
 
 ## What to compare
 
 | Metadata field                                  | Where stored (cached)                              | How to verify                                    |
 | ----------------------------------------------- | -------------------------------------------------- | ------------------------------------------------ |
 | `bi.qubits.n_qubits`                            | `backends.json`                                    | Count distinct qubits in `bi.qubits.coupling_map`. |
-| `bi.qubits.available_qubits`                    | `backend-cache/<chip>.json`                        | `submit_task` a parity-1 circuit on each; refusal → broken qubit. |
-| `bi.qubits.coupling_map`                        | `backend-cache/<chip>.json`                        | Try a 2q gate on each pair; topology error → wrong map. |
-| `bi.basis_gates`                                | `backend-cache/<chip>.json`                        | Compile a circuit using each gate; `UnsupportedGateError` → wrong basis list. |
-| `qubit_info[i].T1`, `T2`                        | `backend-cache/<chip>.json`                        | Run an idle-then-readout protocol; compare decay constants (separate skill). |
+| `bi.qubits.available_qubits`                    | `backend/chips/`                                   | `submit_task` a parity-1 circuit on each; refusal → broken qubit. |
+| `bi.qubits.coupling_map`                        | `backend/chips/`                                   | Try a 2q gate on each pair; topology error → wrong map. |
+| `bi.basis_gates`                                | `backend/chips/`                                   | Compile a circuit using each gate; `UnsupportedGateError` → wrong basis list. |
+| `qubit_info[i].T1`, `T2`                        | `backend/chips/`                                   | Run an idle-then-readout protocol; compare decay constants (separate skill). |
 | `qubit_info[i].single_qubit_gate_error`         | same                                               | `xeb_workflow.run_1q_xeb_workflow` measured fidelity. |
 | `qubit_info[(i,j)].two_qubit_gate_error`        | same                                               | `xeb_workflow.run_2q_xeb_workflow` per-pair.    |
 | Parallel-CZ crosstalk (new in 0.0.13)           | not exposed in cache                               | `uniqc.calibration.xeb.parallel_cz` measures it. |

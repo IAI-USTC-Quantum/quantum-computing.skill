@@ -4,12 +4,16 @@ uniqc keeps two on-disk caches for backend data:
 
 | Path                                  | Contents                                    |
 | ------------------------------------- | ------------------------------------------- |
-| `~/.uniqc/cache/backends.json`        | aggregated cross-platform backend list      |
-| `~/.uniqc/backend-cache/<chip>.json`  | per-chip characterization (qubit fidelities, T1/T2, coupling map, basis gates, etc.) |
+| `~/.uniqc/backend/backends.json`       | aggregated cross-platform backend list      |
+| `~/.uniqc/backend/chips/`              | per-chip characterization (qubit fidelities, T1/T2, coupling map, basis gates, etc.) |
 
 These are **lazy** — uniqc only refreshes on explicit
 `uniqc backend update --platform <p>` (or `--update` on
 `backend chip-display`).
+
+> Migration note: uniqc migrates legacy `~/.uniqc/cache/backends.json` and
+> `~/.uniqc/backend-cache/` on first access. Use only the paths in the table
+> above in new commands and automation.
 
 ## What changed in 0.0.13
 
@@ -45,7 +49,7 @@ uniqc backend chip-display originq/WK_C180 --update
 After `--update`, inspect:
 
 ```bash
-ls -lt ~/.uniqc/backend-cache/ | head
+ls -lt ~/.uniqc/backend/chips/ | head
 ```
 
 ## Programmatic check
@@ -70,8 +74,8 @@ There is no TTL — the cache grows until you delete it. To force a
 clean slate:
 
 ```bash
-rm ~/.uniqc/cache/backends.json
-rm -r ~/.uniqc/backend-cache/
+rm ~/.uniqc/backend/backends.json
+rm -r ~/.uniqc/backend/chips/
 uniqc backend update --platform originq
 uniqc backend update --platform ibm
 uniqc backend update --platform quark
