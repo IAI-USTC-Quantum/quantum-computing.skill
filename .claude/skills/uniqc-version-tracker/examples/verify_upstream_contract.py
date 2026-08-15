@@ -34,8 +34,8 @@ def main() -> int:
     parser.add_argument("--repo-path", required=True, type=Path, help="UnifiedQuantum checkout")
     parser.add_argument(
         "--expected-commit",
-        default="ff3f328ff75aacf552feb23643b5193a6690626c",
-        help="v0.0.17 release-candidate contract commit",
+        default="a02fe4efd6e226b2458e29a67f0bba184872d334",
+        help="v0.0.17 release contract commit",
     )
     args = parser.parse_args()
 
