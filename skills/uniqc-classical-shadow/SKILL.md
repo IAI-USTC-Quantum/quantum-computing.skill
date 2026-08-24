@@ -105,8 +105,9 @@ print("XX:", shadow_expectation(snapshots, "XX"))
 
 ## Names to remember
 
-- `uniqc.classical_shadow(circuit, shots=..., n_shadow=..., qubits=...)`
-  → `list[ShadowSnapshot]`. (Re-exported from top-level `uniqc`.)
+- `uniqc.classical_shadow(circuit, qubits=..., shots=..., n_shadow=..., seed=...)`
+  → `list[ShadowSnapshot]`. (Re-exported from top-level `uniqc`; `seed=`
+  added in 0.1.0 for reproducible snapshots.)
 - `uniqc.shadow_expectation(snapshots, pauli_string)` → `float`.
   Pauli string is **compact** (`"ZIZ"`, length = `n_qubit`).
 - `uniqc.algorithms.core.measurement.ClassicalShadow` — class API

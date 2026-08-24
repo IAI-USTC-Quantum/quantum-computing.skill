@@ -27,7 +27,7 @@ first cloud submit.
 | `TopologyError`                      | Two-qubit gate on a non-coupled pair.                                                                                  | `compile(...)` to insert SWAPs; or pick connected qubits via `RegionSelector`.                                              |
 | `RegisterDefinitionError` / `RegisterNotFoundError` / `RegisterOutOfRangeError` | OriginIR / QASM2 has malformed register definitions.                                            | Auto-emit registers (`Circuit` does this) or check the input file.                                                          |
 | `BackendOptionsError`                | Wrong `BackendOptions` subclass for the platform (e.g. `OriginQOptions` passed to `quark`).                          | Use `BackendOptionsFactory().create_default('quark')` or `from_kwargs('quark', **kw)`.                                       |
-| `DeprecationWarning at .quafu_adapter` | Quafu is archived in 0.0.13 — import emits a warning even when working.                                            | Migrate to OriginQ / Quark / IBM if possible. Otherwise accept the warning.                                                  |
+| `ModuleNotFoundError: uniqc.backend_adapter.task.adapters.quafu_adapter` | Quafu was removed in 0.1.0 (deprecated through 0.0.x).                                                             | Migrate to Quark: `pip install unified-quantum[quark]`, backend `quark:<chip>`.                                               |
 
 ## Debugging cadence
 

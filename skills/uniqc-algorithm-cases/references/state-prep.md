@@ -80,7 +80,8 @@ summary = tomography_summary(rho, print_summary=True)
 ## Common mistakes
 
 - Calling the legacy in-place form `ghz_state(circuit, qubits=...)` —
-  works but emits `DeprecationWarning`. Use the fragment form instead.
+  **removed in 0.1.0** (it now raises instead of mutating). Use the
+  fragment form: `circuit.add_circuit(ghz_state(n, qubits=...))`.
 - Forgetting to add `prog.measure(q)` before sampling. Statevector
   inspection works without it; counts-based sampling does not.
 - Picking `qubits=[0, 1, 2]` when your `Circuit` only has `n_qubits=2`

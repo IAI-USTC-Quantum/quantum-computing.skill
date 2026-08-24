@@ -67,8 +67,8 @@ Sweep `n = 2, 3, 4, …` until a width fails. `QV = 2 ^ (n - 1)`.
 - **`n_circuits ≥ 100`** per width is the Cross-et-al recommendation;
   fewer circuits widens the confidence interval and increases the
   chance of a false fail.
-- **`shots ≥ 1000`** per circuit. Quafu `ScQ-Sim10` and
-  `dummy:local:simulator` ignore this; real hardware needs it.
+- **`shots ≥ 1000`** per circuit. `dummy:local:simulator` ignores this;
+  real hardware needs it.
 - **`seed=...`** for reproducibility — always pass an explicit seed
   list `[0, 1, 2, …, n_circuits - 1]` so two runs against different
   backends compare apples to apples.

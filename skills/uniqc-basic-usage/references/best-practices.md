@@ -68,17 +68,19 @@ uv tool install unified-quantum
 uv pip install unified-quantum
 ```
 
-按功能安装 extras（0.0.13 起 `[qiskit]` 与 `[quafu]` 不再存在）：
+按功能安装 extras（0.0.13 起 `[qiskit]` 不再存在，0.1.0 起 Quafu 整体移除）：
 
-- 核心：`unified-quantum`（自带 numpy / typer / rich / scipy / pyyaml / qiskit / qiskit-aer / qiskit-ibm-runtime）。**plain `pip install unified-quantum` 已足够覆盖 IBM、Qiskit、`dummy:originq:<chip>` / `dummy:quark:<chip>` 的 chip-backed compile 通道**——不再需要 `[qiskit]` extra。
+- 核心：`unified-quantum`（0.1.0 起 pure-Python wheel，C++ 内核拆到 `uniqc-cppsimulator`；自带 numpy / typer / rich / scipy / pyyaml / qiskit / qiskit-aer / qiskit-ibm-runtime）。**plain `pip install unified-quantum` 已足够覆盖 IBM、Qiskit、`dummy:originq:<chip>` / `dummy:quark:<chip>` 的 chip-backed compile 通道**——不再需要 `[qiskit]` extra。
 - OriginQ: `unified-quantum[originq]`（拉 `pyqpanda3`）
-- Quark: `unified-quantum[quark]`（Python ≥ 3.12）
+- Quark: `unified-quantum[quark]`（Python ≥ 3.12；0.1.0 起重新并入 `[all]`）
+- 天衍 TianYan: `unified-quantum[tianyan]`（拉 `cqlib`）
+- 逻辑比特 LogicalQubit: `unified-quantum[logicalqubit]`（拉 `lqcloud`）
 - 高级模拟: `unified-quantum[simulation]`（拉 `qutip`）
 - 可视化: `unified-quantum[visualization]`（拉 `matplotlib`）
 - PyTorch: `unified-quantum[pytorch]`
 - 全部常规 extras: `unified-quantum[all]`
 
-Quafu/`pyquafu` 已 archived（0.0.13）：`[quafu]` extra **不再存在**；如需 Quafu，让用户单独 `pip install pyquafu` 并接受 `numpy<2` 约束；导入 Quafu adapter 会发 `DeprecationWarning`，未来不保证一致性。
+Quafu/`pyquafu` 已在 0.1.0 **整体移除**：BAQIS ScQ 芯片改用 Quark（`quark:<chip>`）；不要再建议安装 `pyquafu`。
 
 ## 发布前/维护者路径
 
@@ -91,7 +93,7 @@ uv run pytest uniqc/test --real-cloud-test
 uv run python scripts/generate_best_practice_notebooks.py
 ```
 
-不要把 `uv sync --all-extras` 当成默认维护者命令；deprecated Quafu/`pyquafu` 可能在当前 Python 上阻塞依赖解析。只有明确测试 Quafu 时才单独启用 `pyquafu`。
+`uv sync --all-extras` 在 0.1.0 后是安全的（Quafu 已移除、`[quark]` 解除平台门槛），但仍优先按需显式选择 extras。
 
 真实云平台测试中，读取后端列表、验证 token、查询 status/API 默认应可跑；会实际提交量子线路的测试才放在 `--real-cloud-test` 下。
 

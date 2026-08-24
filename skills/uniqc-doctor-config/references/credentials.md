@@ -2,21 +2,29 @@
 
 uniqc reads tokens from `~/.uniqc/config.yaml` (or the
 `UNIQC_PROFILE`-prefixed override). It does **not** auto-import
-`ORIGINQ_API_KEY`, `QUAFU_API_TOKEN`, `QUARK_API_KEY`, or `IBM_TOKEN`
-from the environment.
+`ORIGINQ_API_KEY`, `QUARK_API_KEY`, `IBM_TOKEN`, `TIANYAN_LOGIN_KEY`,
+or `LOGICALQUBIT_API_KEY` from the environment. Since 0.1.0 the file
+carries a top-level `config_version` (auto-migrated on first load);
+Quafu keys are gone with the platform.
 
 ## What goes in config.yaml
 
 ```yaml
+config_version: 1
+
 originq:
   token: <ORIGINQ_TOKEN>
-
-quafu:                                   # archived in 0.0.13
-  token: <QUAFU_TOKEN>
 
 quark:
   QUARK_API_KEY: <QUARK_API_KEY>         # NOT `token`
   # other quark.* fields as supplied by the platform
+
+tianyan:
+  login_key: <TIANYAN_LOGIN_KEY>
+
+logicalqubit:
+  api_key: <LOGICALQUBIT_API_KEY>
+  # url: https://cloud.logicalqubit.com   # optional override
 
 ibm:
   token: <IBM_TOKEN>
@@ -31,8 +39,9 @@ ibm:
 
 ```bash
 uniqc config set originq.token <T>
-uniqc config set quafu.token <T>
 uniqc config set quark.QUARK_API_KEY <K>
+uniqc config set tianyan.login_key <K>
+uniqc config set logicalqubit.api_key <K>
 uniqc config set ibm.token <T>
 uniqc config set ibm.proxy.https http://127.0.0.1:7890
 uniqc config validate
@@ -82,8 +91,9 @@ A profile is a sub-dict of `config.yaml` keyed by name; see
   token".
 - **`token: "<TOKEN>"` literally written into the file** — copy/paste
   artefact; verify with `uniqc config get <platform>`.
-- **Quafu deprecation banner** appears at import: that's expected on
-  0.0.13; doctor still reports the platform if you have a token.
+- **`quafu.*` keys left in an old config** — harmless leftovers from
+  pre-0.1.0; the platform (and its validation) is gone. Remove them or
+  ignore.
 - **IBM `instance:` mismatch** — the IBM Quantum platform tightened
   account scoping; if connectivity passes but submit fails with 401,
   the `ibm.instance` field is wrong.

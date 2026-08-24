@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
         with:
           repository: IAI-USTC-Quantum/UnifiedQuantum
-          ref: a02fe4efd6e226b2458e29a67f0bba184872d334
+          ref: 7d724a1501d5b802ccb407a218359ae520d0a3d6
           path: UnifiedQuantum
           fetch-depth: 0
           submodules: recursive
@@ -38,14 +38,10 @@ jobs:
         run: >-
           python .claude/skills/uniqc-version-tracker/examples/verify_upstream_contract.py
           --repo-path UnifiedQuantum
-          --expected-commit a02fe4efd6e226b2458e29a67f0bba184872d334
+          --expected-commit 7d724a1501d5b802ccb407a218359ae520d0a3d6
 
       - name: Install the aligned runtime
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential cmake ninja-build
-          uv pip install --system setuptools setuptools_scm wheel pybind11
-          uv pip install --system "./UnifiedQuantum[pytorch]" --no-build-isolation
+        run: uv pip install --system "./UnifiedQuantum[pytorch]"
 
       - name: Run offline smoke aggregate
         run: >-

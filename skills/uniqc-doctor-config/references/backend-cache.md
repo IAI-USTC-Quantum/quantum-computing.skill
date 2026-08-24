@@ -17,11 +17,14 @@ These are **lazy** — uniqc only refreshes on explicit
 
 ## What changed in 0.0.13
 
-- **`uniqc backend update --platform ibm|quafu|quark`** now actually
+- **`uniqc backend update --platform ibm|quark|tianyan|logicalqubit`** now actually
   refreshes the on-disk chip cache via each adapter's
   `get_chip_characterization`. Previously it raised "Cache refresh not
   implemented for provider …" silently, so `backend list` returned
-  stale rows for days.
+  stale rows for days. (Quafu left this list when the platform was
+  removed in 0.1.0; TianYan / LogicalQubit chip characterization landed
+  in the same release — `uniqc backend chip-display tianyan/<chip>` and
+  `logicalqubit/<backend>` both work.)
 - **IBM specifically** — `_build_adapter(Platform.IBM)` returned a
   bare `QiskitAdapter` whose inherited `list_backends` raised
   `NotImplementedError`; `fetch_platform_backends`'s broad `except

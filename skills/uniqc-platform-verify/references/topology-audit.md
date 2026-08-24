@@ -35,8 +35,8 @@ for q in sorted(bi.qubits.available_qubits):
 print("Qubits worse than 50% readout-1:", bad_qubits)
 ```
 
-> uniqc 0.0.13 enforces `c[0] = LSB` end-to-end across OriginQ / dummy /
-> simulator **and** Quafu / IBM. Don't hand-reverse for any platform.
+> uniqc 0.0.13 enforces `c[0] = LSB` end-to-end across every adapter
+> (OriginQ / dummy / simulator / IBM / …). Don't hand-reverse for any platform.
 
 ## Probe each coupling pair
 

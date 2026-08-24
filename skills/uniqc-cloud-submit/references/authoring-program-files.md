@@ -56,13 +56,13 @@ official = convert_originir_ext_to_originir(Path("circuit.originir").read_text()
 Local `Simulator` / `NoisySimulator` and `dummy:*` backends accept both
 languages — no conversion needed for sanity-check runs.
 
-## Persist as `.qasm` (recommended for IBM / Quafu)
+## Persist as `.qasm` (recommended for IBM)
 
 ```python
 Path("circuit.qasm").write_text(c.qasm)
 ```
 
-For IBM/Quafu uniqc auto-converts at submit time, so writing OriginIR is
+For IBM uniqc auto-converts at submit time, so writing OriginIR is
 also fine — but storing the QASM you actually intend to submit avoids a
 round-trip.
 
@@ -113,9 +113,9 @@ for q in range(5):
 print(prog.originir)
 ```
 
-(For the legacy in-place `fn(circuit, ...)` form: it still works on the
-current release but emits `DeprecationWarning`. New code should use the
-fragment form above.)
+(The legacy in-place `fn(circuit, ...)` form was **removed in 0.1.0** —
+the builders above are fragment-only. On older 0.0.x releases the in-place
+form emitted `DeprecationWarning`.)
 
 ## Round-trip from `.originir` back to a `Circuit`
 

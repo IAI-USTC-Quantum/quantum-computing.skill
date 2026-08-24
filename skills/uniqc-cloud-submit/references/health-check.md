@@ -17,7 +17,7 @@ Sections it prints (each as a Rich table):
 1. **Environment** — uniqc version, Python version, OS, `~/.uniqc/config.yaml` path.
 2. **Core dependencies** — numpy / typer / rich / scipy / pyyaml.
 3. **Optional dependency groups** — installed version per group:
-   `originq` (pyqpanda3), `quafu` (pyquafu), `quark`
+   `originq` (pyqpanda3), `quark`
    (quarkstudio + quarkcircuit), `qiskit`
    (qiskit + qiskit_ibm_runtime), `simulation` (qutip),
    `visualization` (matplotlib), `pytorch` (torch).
@@ -51,15 +51,17 @@ uniqc config get originq           # prints the originq section
 
 | Platform | Install                                | Min Python | What it pulls            |
 | -------- | -------------------------------------- | ---------- | ------------------------ |
-| OriginQ  | `pip install unified-quantum[originq]` | 3.10       | `pyqpanda3`              |
+| OriginQ  | `pip install unified-quantum[originq]` | 3.10 (< 3.14) | `pyqpanda3`           |
 | Quark    | `pip install unified-quantum[quark]`   | **3.12**   | `quarkstudio` + `quarkcircuit` |
 | IBM      | `pip install unified-quantum`          | 3.10       | qiskit / qiskit-aer / qiskit-ibm-runtime (now **core deps** in 0.0.13 — `[qiskit]` extra removed) |
+| TianYan  | `pip install unified-quantum[tianyan]` | 3.10       | `cqlib`                  |
+| LogicalQubit | `pip install unified-quantum[logicalqubit]` | 3.10  | `lqcloud`               |
 | Chip-backed dummy (`dummy:originq:<chip>`, `dummy:quark:<chip>`) | `pip install unified-quantum` | 3.10 | qiskit transpiler (core dep) |
-| Quafu (deprecated, archived) | `pip install pyquafu` (numpy<2) — `[quafu]` extra **removed** in 0.0.13 | 3.10 | `pyquafu` |
 
-`unified-quantum[all]` is a convenience meta-extra; it does **not** include
-Quafu. Quafu adapter imports emit `DeprecationWarning` at runtime; new
-code should target OriginQ / Quark / IBM.
+`unified-quantum[all]` is a convenience meta-extra; since 0.1.0 it
+includes `[quark]` again (the extra only requires Python ≥ 3.12 and is
+silently skipped on 3.10/3.11). Quafu was **removed entirely in 0.1.0** —
+BAQIS ScQ chips are served by `quark:<chip>`.
 
 > 💡 0.0.13 also enriches every `MissingDependencyError` with a doc link
 > and the exact `pip install ...` line — when in doubt, follow the error
@@ -69,16 +71,18 @@ code should target OriginQ / Quark / IBM.
 
 ```bash
 uniqc config set originq.token   $ORIGINQ_TOKEN
-uniqc config set quafu.token     $QUAFU_TOKEN
 uniqc config set quark.QUARK_API_KEY $QUARK_API_KEY    # different key!
 uniqc config set ibm.token       $IBM_TOKEN
+uniqc config set tianyan.login_key  $TIANYAN_LOGIN_KEY
+uniqc config set logicalqubit.api_key $LOGICALQUBIT_API_KEY
 ```
 
 Then re-run `uniqc config validate`.
 
 > ⚠️ Do **not** rely on environment variables. uniqc itself only reads
 > `UNIQC_PROFILE` and `HTTP(S)_PROXY`. It does not auto-import
-> `ORIGINQ_API_KEY` / `QUAFU_API_TOKEN` / `QUARK_API_KEY` / `IBM_TOKEN`.
+> `ORIGINQ_API_KEY` / `QUARK_API_KEY` / `IBM_TOKEN` / `TIANYAN_LOGIN_KEY` /
+> `LOGICALQUBIT_API_KEY`.
 
 ## Step 4 — refresh the backend cache
 

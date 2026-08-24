@@ -35,7 +35,7 @@ including hardware-specific quirks like endianness and partial measurements.
 | `counts`         | `dict[str, int]` — bitstring -> shot count     |
 | `probabilities`  | `dict[str, float]` — counts / shots            |
 | `shots`          | `int` — total shots actually run               |
-| `platform`       | `str` — `'originq' / 'quafu' / 'quark' / 'ibm' / 'dummy'` |
+| `platform`       | `str` — `'originq' / 'quark' / 'ibm' / 'tianyan' / 'logicalqubit' / 'dummy'` |
 | `task_id`        | `str` — uniqc id (`uqt_*`)                     |
 | `backend_name`   | `str | None` — chip / simulator name           |
 | `execution_time` | `float | None` — seconds, when the platform reports it |
@@ -63,9 +63,9 @@ including hardware-specific quirks like endianness and partial measurements.
 - Save figures as PNG **and** the underlying counts as JSON next to them.
   Plots without raw data are not reproducible.
 - Endianness: counts keys are **little-endian by default** on uniqc
-  (qubit 0 / `c[0]` is the rightmost character). 0.0.13 enforces this end-to-end
-  on Quafu and IBM as well — they previously emitted big-endian strings; if
-  you have hand-reversed Quafu/IBM keys in old code, drop the reversal.
+  (qubit 0 / `c[0]` is the rightmost character), enforced end-to-end on
+  every platform since 0.0.13. If you have pre-0.0.13 code that
+  hand-reversed IBM keys, drop the reversal.
 
 ## CLI / JSON note (0.0.13 fix)
 

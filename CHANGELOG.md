@@ -2,6 +2,41 @@
 
 All notable changes to the `quantum-computing.skill` package are documented here.
 
+## [0.1.0] - 2026-08-24 — UnifiedQuantum 0.1.0 alignment
+
+### Changed
+
+- **0.1.0 弃用悬崖执行落地** — 13 个 skill 中所有"deprecated / 仍可用但告警"
+  的表述改为"已移除"：Quafu 平台（模块 / `Platform.QUAFU` / `quafu.*`
+  配置键 / `pyquafu`）整体移除并指向 Quark 迁移路径；
+  `uniqc.simulator.get_backend()` → `get_simulator()` /
+  `create_simulator()`；`IBMAdapter` → `QiskitAdapter`；平台原生 task id
+  隐式回退移除（只认 `uqt_*`）；12 个算法构建块的 in-place 形式移除
+  （统一 fragment + `add_circuit`）；`grover_diffusion(..., ancilla=...)`
+  kwarg 删除。涉及 `uniqc-cloud-submit`、`uniqc-doctor-config`、
+  `uniqc-basic-usage`、`uniqc-result-analysis`、`uniqc-algorithm-cases`、
+  `uniqc-circuit-interop`、`uniqc-quantum-volume`。
+- **新平台文档** — TianYan（天衍，`tianyan176` + `_sw/_sa/_s/_tn/_tnn`，
+  `tianyan.login_key`，extra `[tianyan]`）与 LogicalQubit（AGate 系列，
+  `logicalqubit.api_key`，shots ≤ 50000，extra `[logicalqubit]`）写入
+  cloud-submit / doctor-config / basic-usage 的平台表、凭证表与 CLI 示例。
+- **打包与配置** — C++ 内核拆分（`uniqc-cppsimulator>=1.0.1,<2`，主包
+  pure-Python wheel，不再需要 CMake）；`[quark]` 解除平台门槛（Py ≥ 3.12）
+  并重新并入 `[all]`；`config_version` schema 版本化；`uniqc sync`
+  （Infisical `setup/status/push/pull` + confsync `upload`）。
+- **API 补充** — `classical_shadow()` 签名更新
+  （`(circuit, qubits=None, shots=4096, n_shadow=None, seed=None)`）。
+
+### Verified
+
+- PyPI 正式包 `unified-quantum[pytorch]==0.1.0`（Python 3.12）冒烟：
+  13/13 PASS。
+- `verify_upstream_contract.py` 重写为 v0.1.0 契约（cppsimulator 依赖、
+  无 CMakeLists、quafu 零残留、新平台 extras、config_version），对
+  v0.1.0 tag commit `7d724a1` 14/14 通过。
+- CI pin 从 v0.0.17 commit 重打到 v0.1.0 tag；安装步骤去掉 CMake /
+  build-essential（纯 Python 构建）。
+
 ## [0.0.17] - 2026-07-22 — UnifiedQuantum 0.0.17 alignment
 
 ### Changed

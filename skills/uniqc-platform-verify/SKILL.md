@@ -1,6 +1,6 @@
 ---
 name: uniqc-platform-verify
-description: "Use when the user wants to verify that a quantum platform's published / cached metadata is actually accurate: cross-check chip topology, qubit availability, basis gates, calibration freshness, and 1q/2q/parallel-CZ gate fidelities against measured XEB + readout calibration on the live backend. Detect stale chip cache, drift between vendor-published numbers and measured values, qubits that should be excluded, and silent backend regressions. Builds on the uniqc 0.0.13 backend-cache refresh fix (IBM/Quafu/Quark `uniqc backend update --platform` actually refreshes now), the strict pre-flight policy in `uniqc.calibration.xeb`, and the parallel-CZ XEB module."
+description: "Use when the user wants to verify that a quantum platform's published / cached metadata is actually accurate: cross-check chip topology, qubit availability, basis gates, calibration freshness, and 1q/2q/parallel-CZ gate fidelities against measured XEB + readout calibration on the live backend. Detect stale chip cache, drift between vendor-published numbers and measured values, qubits that should be excluded, and silent backend regressions. Builds on the uniqc 0.0.13 backend-cache refresh fix (IBM/Quark `uniqc backend update --platform` actually refreshes now; TianYan/LogicalQubit since 0.1.0), the strict pre-flight policy in `uniqc.calibration.xeb`, and the parallel-CZ XEB module."
 ---
 
 # Uniqc Platform Verification Skill

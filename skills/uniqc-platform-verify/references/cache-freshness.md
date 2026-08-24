@@ -24,7 +24,8 @@ uniqc backend update --platform originq        # cross-platform: also use ibm/qu
 uniqc backend chip-display originq/WK_C180 --update
 ```
 
-uniqc 0.0.13 fix: this **actually** refreshes IBM / Quafu / Quark caches now;
+uniqc 0.0.13 fix: this **actually** refreshes IBM / Quark caches now
+(and TianYan / LogicalQubit since 0.1.0);
 prior versions silently no-op'd for IBM and reported success. Also: when
 the platform SDK returns 0 backends (typically a credential / instance
 problem), the new logic keeps the existing cache instead of overwriting

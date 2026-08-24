@@ -2,7 +2,7 @@
 
 ## Function-level API
 
-### `classical_shadow(circuit, shots=1000, n_shadow=None, qubits=None) -> list[ShadowSnapshot]`
+### `classical_shadow(circuit, qubits=None, shots=4096, n_shadow=None, seed=None) -> list[ShadowSnapshot]`
 
 Collects classical-shadow snapshots. Each snapshot draws an independent
 uniform random single-qubit Clifford (`X`, `Y`, `Z`-basis rotation) per
@@ -12,11 +12,13 @@ Args:
 
 - `circuit`: any `AnyQuantumCircuit` input. Must include measurements
   on every qubit you intend to observe.
-- `shots`: integer; number of snapshots collected.
+- `shots`: integer; number of snapshots collected (default `4096`).
 - `n_shadow`: optional; if `None` defaults to `shots`. Lets you
   decouple "experimental shots" from "snapshot count" when the
   underlying simulator returns multiple samples per circuit.
 - `qubits`: optional list of qubit indices to restrict observation to.
+- `seed`: optional int (added in 0.1.0) for reproducible snapshots;
+  `None` keeps OS-entropy randomness.
 
 Returns: `list[ShadowSnapshot]`. Each snapshot is a dataclass holding
 the random Pauli basis indices and the measured bitstring.

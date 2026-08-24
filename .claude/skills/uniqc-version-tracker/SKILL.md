@@ -149,9 +149,11 @@ python .claude/skills/uniqc-version-tracker/examples/verify_upstream_contract.py
   --repo-path ../UnifiedQuantum
 ```
 
-It checks the v0.0.17 commit, Python/CMake ranges, PyTorch extra, cache/config
+It checks the v0.1.0 commit, Python range, PyTorch extra, the
+`uniqc-cppsimulator` split (no CMakeLists), Quafu removal, the new
+tianyan/logicalqubit extras, config schema versioning, cache/config
 paths, backend grammar, CLI lifecycle/flag, cloud-test opt-in default, and the
-0.1.0 deprecation cliff. The UnifiedQuantum PR workflow should invoke this
+deprecation policy. The UnifiedQuantum PR workflow should invoke this
 script with `--repo-path "$GITHUB_WORKSPACE"` after checking out this Skill
 repository (or its release artifact); no main-repository file change is needed
 for the checker itself.

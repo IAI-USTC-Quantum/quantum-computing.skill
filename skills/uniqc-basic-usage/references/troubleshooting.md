@@ -44,12 +44,13 @@ uv pip install "unified-quantum[all]"
 
 按功能拆分时（uniqc ≥ 0.0.13）：
 
-- 核心：`pip install unified-quantum`（已自带 numpy / typer / rich / scipy / pyyaml / qiskit / qiskit-aer / qiskit-ibm-runtime——IBM、Qiskit、`dummy:originq:<chip>` / `dummy:quark:<chip>` 的 chip-backed compile 通道**都不再需要 extra**）
+- 核心：`pip install unified-quantum`（0.1.0 起是 pure-Python wheel，C++ 内核拆到独立依赖 `uniqc-cppsimulator`；已自带 numpy / typer / rich / scipy / pyyaml / qiskit / qiskit-aer / qiskit-ibm-runtime——IBM、Qiskit、`dummy:originq:<chip>` / `dummy:quark:<chip>` 的 chip-backed compile 通道**都不再需要 extra**）
 - 本地高级模拟（qutip）：`unified-quantum[simulation]`
 - 可视化：`unified-quantum[visualization]`
 - OriginQ：`unified-quantum[originq]`
-- Quark：`unified-quantum[quark]`（Python ≥ 3.12）
-- Quafu：**已 archived，`[quafu]` extra 不存在**——如必须用，单独 `pip install pyquafu` 并接受 `numpy<2`。
+- Quark：`unified-quantum[quark]`（Python ≥ 3.12；0.1.0 起重新并入 `[all]`）
+- 天衍 TianYan：`unified-quantum[tianyan]`；逻辑比特 LogicalQubit：`unified-quantum[logicalqubit]`
+- Quafu：**0.1.0 已整体移除**——BAQIS ScQ 芯片改用 Quark（`quark:<chip>`）。
 - PyTorch：`unified-quantum[pytorch]`
 
 缺 `qutip`、`torch`、`pyqpanda3` 时，先判断是不是缺 extra，不要立刻当作核心库损坏。`qiskit` 装不上请按核心包重装：`pip install --upgrade unified-quantum`。0.0.13 起 `MissingDependencyError` 的报错消息会嵌入文档链接 + 具体修复指令，按提示操作即可。
@@ -83,7 +84,7 @@ uniqc backend chip-display originq/WK_C180 --update
 1. 配置：`uniqc config validate`
 2. backend：`uniqc backend list --platform ...`
 3. 线路：先 `uniqc simulate` 或 dummy submit
-4. 平台参数：OriginQ 用 `backend_name`，Quafu 用 `chip_id`
+4. 平台参数：统一用单字符串 `backend="<provider>:<chip>"`（旧的 `backend_name` / `chip_id` 双参数写法是 legacy）
 5. 任务状态：`query_task` / `uniqc task show TASK_ID`（不是 `task status`）
 6. 结果：`wait_for_result` timeout 不等价于提交失败，继续查 `uniqc task show`；要等到完成再拿结果，用 `uniqc result TASK_ID --wait`
 
@@ -118,7 +119,7 @@ uniqc backend chip-display originq/WK_C180 --update
 | `OriginIR input does not have correct CREG statement.` | 直接拼字符串时漏了 `CREG N` | `QINIT N` 后面**必须**紧跟 `CREG N`（或对应宽度），即使用不到经典寄存器 |
 | `ValueError: Qubit exceeds the maximum (QINIT n)` | 直接生成 IR 时 `QINIT` 宽度小于实际用到的 qubit 索引 | 把 `QINIT` 设成 `max(qubit_index)+1` 或交给 `Circuit` 自动算 |
 | `Circuit.measure(q, c)` 在 IR 里出现两次 MEASURE 同一 q | 当前 `Circuit` 对每次 measure 都生成一条 OriginIR 行 | 多次 measure 不会损坏统计，但 result counts 的位宽会变（每条 MEASURE 对应一位 cbit），后处理时按 cbit 顺序解码而不是按 qubit |
-| `ReadoutCalibrator(adapter=BackendInfo)` 报错或返回空 | calibrator 期望一个**带 `submit` 方法的 adapter**，而 `BackendInfo` 只是元数据容器 | 传具体平台 adapter，如 `OriginQAdapter`、`QuafuAdapter`，或在 dummy 流程里传 `DummyAdapter` 实例 |
+| `ReadoutCalibrator(adapter=BackendInfo)` 报错或返回空 | calibrator 期望一个**带 `submit` 方法的 adapter**，而 `BackendInfo` 只是元数据容器 | 传具体平台 adapter，如 `OriginQAdapter`、`QiskitAdapter`，或在 dummy 流程里传 `DummyAdapter` 实例 |
 
 ## MPS 模拟器排错
 

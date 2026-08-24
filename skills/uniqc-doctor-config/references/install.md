@@ -18,11 +18,17 @@ and **chip-backed dummy backends** (`dummy:originq:<chip>`,
 | --------------------------------------- | ---------------------------------------------------- |
 | OriginQ real hardware / cloud sim       | `pip install unified-quantum[originq]`              |
 | Quark real hardware (Python ≥ 3.12)     | `pip install unified-quantum[quark]`                |
+| TianYan real hardware / cloud sims      | `pip install unified-quantum[tianyan]`              |
+| LogicalQubit real hardware              | `pip install unified-quantum[logicalqubit]`         |
 | Density-matrix sim with `qutip`         | `pip install unified-quantum[simulation]`           |
 | Plotting (matplotlib / pandas)          | `pip install unified-quantum[visualization]`        |
 | PyTorch QML (`torch`)                   | `pip install unified-quantum[pytorch]`              |
-| Everything (excluding archived Quafu)   | `pip install unified-quantum[all]`                  |
-| **Quafu (archived)** — `[quafu]` extra **removed** | `pip install pyquafu` (and pin `numpy<2`) |
+| Everything (all extras above)           | `pip install unified-quantum[all]`                  |
+
+Quafu has no install path: the platform was **removed in 0.1.0**. Since
+0.1.0 `unified-quantum` is a pure-Python wheel — the C++ simulator kernel
+ships as the `uniqc-cppsimulator` dependency, so no CMake or C++
+toolchain is needed to install or build.
 
 ## Workflow
 
@@ -42,9 +48,9 @@ and **chip-backed dummy backends** (`dummy:originq:<chip>`,
 - **`pyqpanda3` wheel not available for your Python** — check the
   doctor's "Python" line; OriginQ wheels lag the latest minor Python.
   Pin Python to 3.10–3.12 if needed.
-- **`numpy<2` constraint** — `pyquafu` requires numpy<2 today. If you
-  install both `pyquafu` and any other package that needs numpy 2, the
-  resolver will complain. Quafu is archived for this exact reason.
+- **`numpy<2` constraint (historical)** — this was a `pyquafu` problem;
+  Quafu support is gone in 0.1.0 and the constraint no longer applies to
+  any supported extra.
 - **CLI `uniqc` not on PATH** — you used `pip install` instead of `uv
   tool install`, and the venv isn't activated. Activate, or
   `python -m uniqc.cli ...`.
@@ -63,8 +69,9 @@ GROUPS = {
     "core":          ["numpy", "scipy", "typer", "rich", "pyyaml",
                       "qiskit", "qiskit-aer", "qiskit-ibm-runtime"],
     "originq":       ["pyqpanda3"],
-    "quafu":         ["pyquafu"],
     "quark":         ["quarkstudio", "quarkcircuit"],
+    "tianyan":       ["cqlib"],
+    "logicalqubit":  ["lqcloud"],
     "simulation":    ["qutip"],
     "visualization": ["matplotlib"],
     "pytorch":       ["torch"],

@@ -91,8 +91,8 @@ post-decomposition basis).
   symbols across; bind on the qiskit side if you want a numeric circuit.
 - **Endianness on display**. qiskit displays bitstrings big-endian by
   default (`qreg[0]` on the left). uniqc and the rest of the pipeline
-  are little-endian (`c[0]` on the right). 0.0.13 enforces uniqc's
-  `c[0] = LSB` end-to-end, including IBM/Quafu adapters — drop any
+  are little-endian (`c[0]` on the right). Since 0.0.13 uniqc enforces
+  `c[0] = LSB` end-to-end across every adapter — drop any
   hand-reversal you may have added pre-0.0.13.
 - **`qiskit-aer` is in core**. You no longer need `pip install
   unified-quantum[qiskit]`. If qiskit is missing, reinstall uniqc.

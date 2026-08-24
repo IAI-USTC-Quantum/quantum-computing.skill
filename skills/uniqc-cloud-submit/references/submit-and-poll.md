@@ -74,8 +74,8 @@ Why one id for many circuits:
 
 - Backends with native batch support (OriginQ ≤ 200/group, IBM ≤ 100/group)
   use it; uniqc shards above that limit transparently.
-- Backends with no native batch (Quafu / Quark / Dummy) get one shard per
-  circuit but the user still sees a single `uqt_*`.
+- Backends with no native batch (Quark / TianYan / LogicalQubit / Dummy) get
+  one shard per circuit but the user still sees a single `uqt_*`.
 
 To recover the underlying platform task ids:
 
@@ -115,7 +115,6 @@ it unless you need custom logic.
 | `metadata`         | `None`  | `dict` saved alongside the task in `~/.uniqc/cache/tasks.sqlite`.                                                                     |
 | `options`          | `None`  | Platform-specific `BackendOptions` (e.g. `QuarkOptions(chip_id="Baihua", compile=True)`).                                             |
 | `backend_name`     | `None`  | Legacy two-arg form (`backend="originq", backend_name="WK_C180"`). uniqc 0.0.13 prefers (and largely enforces) the single `provider:chip` string. |
-| `chip_id`          | `None`  | Quafu (deprecated). For new code use the single `backend="quafu:ScQ-Sim10"` form.                                                     |
 
 ## Re-attaching to an old task id from a fresh shell
 
@@ -132,6 +131,8 @@ from uniqc import wait_for_result
 result = wait_for_result("uqt_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", timeout=600)
 ```
 
-If you only have the platform-native task id (e.g. an OriginQ MD5),
-`query_task("<platform_id>")` still works but emits `DeprecationWarning`
-and resolves through the shard index back to the parent `uqt_*`.
+If you only have the platform-native task id (e.g. an OriginQ MD5), note
+that the implicit platform-id → `uqt_*` lookup fallback was **removed in
+0.1.0**: `query_task("<platform_id>")` no longer resolves it. Recover the
+`uqt_*` from your submission log/output, or query the platform console
+directly. (The shard index itself stays; only the implicit fallback is gone.)

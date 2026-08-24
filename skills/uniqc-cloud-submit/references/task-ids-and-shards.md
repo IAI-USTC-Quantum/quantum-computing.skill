@@ -8,7 +8,7 @@ not the platform-native ids underneath it.
 ## Why this exists
 
 - Different platforms returned wildly different id formats (OriginQ MD5,
-  IBM `cp...`, Quafu UUID, Dummy `0x...`); downstream scripts kept
+  IBM `cp...`, Dummy `0x...`); downstream scripts kept
   hard-coding format assumptions.
 - Auto-sharding: a batch of 500 circuits on OriginQ becomes 3 native task
   ids (default `task_group_size=200`), but the user only ever sees one id.
@@ -76,8 +76,10 @@ Most pipelines should not care, but two real cases:
   every shard. Old (pre-0.0.12) rows that only had a platform id get
   auto-migrated on first read; the original platform id is preserved at
   `metadata.legacy_platform_id`.
-- Passing a raw platform id to `query_task` resolves through the shard
-  index back to the parent `uqt_*` — and emits `DeprecationWarning`.
+- Passing a raw platform id to `query_task` **no longer resolves** — the
+  implicit fallback through the shard index was removed in 0.1.0 (the
+  shard index itself, `TaskStore.find_uniqc_id_by_platform_id`, stays for
+  internal use). Always keep the `uqt_*` id from submission.
 - `submit_task`/`submit_batch` never return the legacy format unless you
   pass `return_platform_ids=True`.
 

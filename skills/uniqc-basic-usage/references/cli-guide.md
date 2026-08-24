@@ -46,7 +46,7 @@ uniqc doctor --ai-hints     # 附 AI 渐进提示
 它会按表打印：
 
 1. **环境**：uniqc 版本、Python、OS、`~/.uniqc/config.yaml` 路径。
-2. **依赖**：核心依赖（numpy / typer / rich / scipy / pyyaml）+ 可选组（originq / quafu / quark / qiskit / simulation / visualization / pytorch）的安装版本。
+2. **依赖**：核心依赖（numpy / typer / rich / scipy / pyyaml）+ 可选组（originq / quark / tianyan / logicalqubit / qiskit / simulation / visualization / pytorch）的安装版本。
 3. **配置**：每个平台的 token 是否配齐（脱敏显示前 6 字符）+ 缺失项给安装/配置命令提示。
 4. **任务 DB**：`~/.uniqc/cache/tasks.sqlite` 的 schema 版本、行数、是否需要 migrate。
 5. **后端 cache**：`~/.uniqc/backend/backends.json` 是否存在、最近一次 update 时间。
@@ -130,8 +130,8 @@ uniqc submit bell.ir --backend dummy:local:mps-linear-12 --shots 500 --wait
 uniqc backend list --platform originq
 uniqc backend list --platform quark
 uniqc backend list --platform ibm
-# Quafu 已弃用：仅当用户明确需要时使用
-uniqc backend list --platform quafu
+uniqc backend list --platform tianyan
+uniqc backend list --platform logicalqubit
 ```
 
 OriginQ 示例：
@@ -140,13 +140,7 @@ OriginQ 示例：
 uniqc submit bell.ir --backend originq:WK_C180 --shots 100 --wait
 ```
 
-Quafu 示例（已 deprecated，仅做兼容支持）：
-
-```bash
-uniqc submit bell.ir --backend quafu:ScQ-Sim10 --shots 100 --wait
-```
-
-Quark 示例（需配置 `QUARK_API_KEY`）：
+Quafu 已在 0.1.0 整体移除；BAQIS ScQ 芯片改用 Quark（需配置 `QUARK_API_KEY`）：
 
 ```bash
 uniqc submit bell.ir --backend quark:Baihua --shots 100 --wait
@@ -194,8 +188,9 @@ Python 侧配置模块是顶级 `uniqc.config`，因为配置已经覆盖 profil
 ```bash
 uniqc config init
 uniqc config set originq.token YOUR_ORIGINQ_TOKEN
-uniqc config set quafu.token YOUR_QUAFU_TOKEN
 uniqc config set quark.QUARK_API_KEY YOUR_QUARK_API_KEY
+uniqc config set tianyan.login_key YOUR_TIANYAN_LOGIN_KEY
+uniqc config set logicalqubit.api_key YOUR_LOGICALQUBIT_API_KEY
 uniqc config set ibm.token YOUR_IBM_TOKEN
 uniqc config set ibm.proxy.https http://127.0.0.1:7890
 uniqc config set ibm.proxy.http http://127.0.0.1:7890

@@ -233,7 +233,7 @@ task_id = submit_task(circuit, backend="dummy", shots=1000, options=opts)
 
 使用建议：
 
-- 写 cloud workflow 示例时，先给 dummy，再给 OriginQ/Quafu/Quark/IBM。
+- 写 cloud workflow 示例时，先给 dummy，再给 OriginQ/Quark/IBM/天衍（TianYan）/逻辑比特（LogicalQubit）。
 - `dummy` 通过后，如果关心拓扑，先换 `dummy:virtual-*`；如果关心真实芯片标定噪声，再换 `dummy:<platform>:<backend>`。
 - chip-backed dummy 是规则型写法，不会出现在 `uniqc backend list` 中。
 - 不要把无约束 `dummy` counts 当成硬件噪声模型结论。
