@@ -149,11 +149,15 @@ python .claude/skills/uniqc-version-tracker/examples/verify_upstream_contract.py
   --repo-path ../UnifiedQuantum
 ```
 
-It checks the v0.1.0 commit, Python range, PyTorch extra, the
+It checks the v0.1.1 commit, Python range, PyTorch extra, the
 `uniqc-cppsimulator` split (no CMakeLists), Quafu removal, the new
 tianyan/logicalqubit extras, config schema versioning, cache/config
-paths, backend grammar, CLI lifecycle/flag, cloud-test opt-in default, and the
-deprecation policy. The UnifiedQuantum PR workflow should invoke this
+paths, backend grammar, CLI lifecycle/flag, cloud-test opt-in default,
+and the deprecation policy — plus the 0.1.1 rendering contract: the
+seven-mode `circuit_render` engine behind `render()` / `Circuit.draw()`,
+the `uniqc draw` CLI, `Circuit.to_matrix()`, and the 0.2.0 deprecation of
+the legacy `draw()` / `draw_html()` wrappers (19 checks). The
+UnifiedQuantum PR workflow should invoke this
 script with `--repo-path "$GITHUB_WORKSPACE"` after checking out this Skill
 repository (or its release artifact); no main-repository file change is needed
 for the checker itself.
@@ -162,7 +166,7 @@ The 13 smoke tests and their expected times:
 
 | # | Script | Skill | Time | Exercises |
 |---|--------|-------|------|-----------|
-| 1 | `smoke_basic_usage.py` | uniqc-basic-usage | ~2s | Circuit + Simulator.simulate_pmeasure + submit_task |
+| 1 | `smoke_basic_usage.py` | uniqc-basic-usage | ~8s | Circuit + Simulator.simulate_pmeasure + submit_task + draw/to_matrix |
 | 2 | `smoke_cloud_submit.py` | uniqc-cloud-submit | ~2s | find_backend + dry_run + compile + submit_task |
 | 3 | `smoke_result_analysis.py` | uniqc-result-analysis | ~2s | UnifiedResult fields + plot_histogram import |
 | 4 | `smoke_xeb_qem.py` | uniqc-xeb-qem | ~3s | ReadoutEM calibration + apply |

@@ -1,6 +1,6 @@
 ---
 name: uniqc-basic-usage
-description: "Use when the user asks about UnifiedQuantum or uniqc basic usage: installation, Python imports, Circuit construction (incl. AnyQuantumCircuit input across Circuit / OriginIR / QASM2 / qiskit / pyqpanda3), OriginIR/OpenQASM export, local simulation with the unified `Simulator` / `NoisySimulator` (incl. MPS / matrix-product-state / tensor network on linear topology), CLI help, config, `uniqc doctor` diagnostics, dummy backends (`dummy:local:virtual-line-N`, `dummy:local:mps-linear-N`, user YAML `dummy:virtual:<name>`), `uniqc submit --backend <provider>:<chip>` (single-flag CLI, no more `--platform`), dry-run, backend discovery/cache, simple cloud submission, result queries (`get_result` / `poll_result` / `wait_for_result`), calibration, QEM, timeline visualization, and first-pass troubleshooting. Provide practical runnable workflows for UnifiedQuantum v0.0.17."
+description: "Use when the user asks about UnifiedQuantum or uniqc basic usage: installation, Python imports, Circuit construction (incl. AnyQuantumCircuit input across Circuit / OriginIR / QASM2 / qiskit / pyqpanda3), OriginIR/OpenQASM export, circuit drawing with the 0.1.1 rendering engine (`Circuit.draw(mode)` / `uniqc draw`, modes text/svg/png/mpl/latex/html/interactive), `Circuit.to_matrix()` full-unitary export, local simulation with the unified `Simulator` / `NoisySimulator` (incl. MPS / matrix-product-state / tensor network on linear topology), CLI help, config, `uniqc doctor` diagnostics, dummy backends (`dummy:local:virtual-line-N`, `dummy:local:mps-linear-N`, user YAML `dummy:virtual:<name>`), `uniqc submit --backend <provider>:<chip>` (single-flag CLI, no more `--platform`), dry-run, backend discovery/cache, simple cloud submission, result queries (`get_result` / `poll_result` / `wait_for_result`), calibration, QEM, timeline visualization, and first-pass troubleshooting. Provide practical runnable workflows for UnifiedQuantum v0.1.1."
 ---
 
 # Uniqc Basic Usage Skill
@@ -9,7 +9,7 @@ Use this skill to help agents handle common UnifiedQuantum usage. Prefer direct,
 
 ## Core Mental Model
 
-UnifiedQuantum (current **0.0.17 release**) has six common surfaces:
+UnifiedQuantum (current **0.1.1 release**) has six common surfaces:
 
 1. **Circuit authoring**: build circuits with top-level `uniqc.Circuit`, then export OriginIR or OpenQASM. Public APIs (compile / simulate / submit) accept the unified `AnyQuantumCircuit` type — `Circuit` / OriginIR `str` / OpenQASM 2.0 `str` / `qiskit.QuantumCircuit` / pyqpanda3 circuit — and normalize internally via `normalize_to_circuit()`.
 2. **Local simulation**: validate circuits with `uniqc simulate` or the unified `Simulator` / `NoisySimulator` before spending cloud quota. Format (OriginIR vs QASM 2.0) is auto-detected at runtime.
@@ -31,6 +31,7 @@ Choose the path from the user's goal:
 - **Use PyTorch or batching helpers**: read [references/pytorch-integration.md](references/pytorch-integration.md).
 - **Run dummy, cloud simulator, or real hardware**: read [references/cloud-platforms.md](references/cloud-platforms.md).
 - **Calibrate, benchmark, or mitigate readout errors**: read [references/calibration-qem.md](references/calibration-qem.md).
+- **Draw or render a circuit** (ASCII / SVG / PNG / LaTeX / HTML / interactive): `circuit.draw(mode, ...)` or the `uniqc draw <file>` CLI (0.1.1 engine); see [references/cli-guide.md](references/cli-guide.md).
 - **Visualize circuit timelines or render to HTML**: read [references/timeline-visualization.md](references/timeline-visualization.md).
 - **Something fails after following the feature reference**: read [references/troubleshooting.md](references/troubleshooting.md).
 
@@ -79,6 +80,20 @@ circuit.h(0)
 circuit.cnot(0, 1)
 circuit.measure(0, 1)
 print(circuit.originir)
+```
+
+Drawing and unitary export (uniqc ≥ 0.1.1):
+
+```python
+from uniqc.visualization import render
+
+print(circuit)                      # text art (self-developed renderer, no pyqpanda3)
+svg = circuit.draw("svg")           # modes: text/svg/png/mpl/latex/html/interactive
+render(circuit, mode="html", filename="circuit.html")
+
+bell = Circuit(2); bell.h(0); bell.cnot(0, 1)
+u = bell.to_matrix()                # (4, 4) complex unitary; raises NotMatrixableError
+                                    # if the circuit has measurements / QRAM calls
 ```
 
 Local simulation (uniqc ≥ 0.0.13 — unified `Simulator`):
@@ -163,7 +178,8 @@ If the user only needs the CLI, use `uv tool install unified-quantum`. If the us
 - Compile entry point: `uniqc.compile` (`compile()`, `TranspilerConfig`, `CompilationResult`)
 - Calibration module: `uniqc.calibration` (XEB, readout calibration, `XEBResult`, `ReadoutCalibrationResult`)
 - QEM module: `uniqc.qem` (`M3Mitigator`, `ReadoutEM`, `StaleCalibrationError`, `ZNE`). All mitigators expose a `.apply(unified_result)` pipeline-style API that returns a new `UnifiedResult` with mitigated counts/probabilities — feed it directly into the rest of the workflow. Legacy `mitigate_counts` / `mitigate_probabilities` still exist for raw-dict input. **`ZNE` is a placeholder** that raises `NotImplementedError`; only readout mitigation is currently implemented.
-- Visualization module: `uniqc.visualization` (`circuit_to_html`, `plot_time_line_html`, `schedule_circuit`)
+- Visualization module: `uniqc.visualization` — circuit rendering (0.1.1 engine): `render(circuit, mode=...)` / `Circuit.draw(...)` with modes `text/svg/png/mpl/latex/html/interactive` (+ CLI `uniqc draw <file>`; legacy `draw` / `draw_html` deprecated, removed in 0.2.0). Timelines / report pages: `circuit_to_html`, `plot_time_line_html`, `schedule_circuit`.
+- Full-unitary export (≥ 0.1.1): `Circuit.to_matrix()` — `(2**n, 2**n)` complex ndarray, convention `state_out = U @ state_in` with qubit 0 as the LSB; raises `NotMatrixableError` for measurements or non-unitary opcodes (e.g. QRAM).
 - Algorithms workflows: `uniqc.algorithms.workflows` (`xeb_workflow`, `readout_em_workflow`). Note: VQE/QAOA/QNN training loops live in `uniqc.algorithms.core.training` (needs `[pytorch]`, which installs `torch` + `torchquantum-ng`).
 - Algorithm fragments (return new `Circuit`): `hea`, `qaoa_ansatz`, `uccsd_ansatz`, `qft_circuit`, `qpe_circuit`, `ghz_state`, `w_state`, `dicke_state_circuit`, `cluster_state`, `grover_oracle`, `grover_diffusion`, `amplitude_estimation_circuit`, `vqd_ansatz`, `thermal_state_circuit`, `deutsch_jozsa_circuit`. Fragment-only since 0.1.0 (the legacy `fn(circuit, ...)` in-place form is removed — compose with `circuit.add_circuit(fragment)`). `qpe_circuit(n_precision, unitary_circuit, *, state_prep=None, controlled_power=None, measure=True)` returns a fresh `Circuit` with `n_system + n_precision` qubits and (by default) measurements on the precision register; the integer ``m`` decoded from the measured cbits gives ``φ ≈ m / 2**n_precision``. (uniqc ≥ 0.0.11.dev30, C-U9.)
 - Measurement helpers: `uniqc.algorithms.core.measurement` — functions (`pauli_expectation`, `basis_rotation_measurement`, `classical_shadow`, `shadow_expectation`, `state_tomography`, `tomography_summary`) **and** classes (`PauliExpectation`, `StateTomography`, `ClassicalShadow`, `BasisRotationMeasurement`) with `.get_readout_circuits()` + `.execute(backend)` API. `pauli_expectation` / `PauliExpectation` accept three Pauli-string forms (C-U2, uniqc ≥ 0.0.11.dev30): compact `"ZIZ"` (length = n_qubit), indexed `"Z0Z1"`, and tuple-list `[("Z", 0), ("Z", 1)]`. `basis_rotation_measurement` now raises `ValueError` if the input circuit has no `MEASURE` instructions (C-U5, was previously a silent no-op for X/Y bases). `tomography_summary` is pure NumPy/SciPy (no qutip) and returns a dict with `eigenvalues / purity / trace / is_pure / fidelity`; pass `print_summary=False` to suppress the formatted stdout output.

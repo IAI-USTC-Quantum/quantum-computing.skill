@@ -6,7 +6,13 @@
 
 面向 [UnifiedQuantum](https://github.com/IAI-USTC-Quantum/UnifiedQuantum) 的 Agent Skills 集合仓库。
 
-当前版本已对齐 **UnifiedQuantum v0.1.0**。v0.1.0 是"弃用悬崖"执行版：所有在
+当前版本已对齐 **UnifiedQuantum v0.1.1**。v0.1.1 是"电路可视化"版本：
+
+- **自研电路渲染引擎**（`uniqc/visualization/circuit_render/`）：一个布局核心驱动七种输出模式——`text`（自研 ASCII/Unicode 字符画，不再依赖 pyqpanda3，Python 3.14 可用）、`svg`、`png`、`mpl`、`latex`（quantikz 源码）、`html`、`interactive`（点击查看门详情）。入口统一为 `Circuit.draw(mode, ...)` / `uniqc.visualization.render(circuit, mode, ...)`，Jupyter 下 `Circuit` 直接内联渲染 SVG（`_repr_svg_`），终端 `print(circuit)` 即字符画，CLI 侧新增 `uniqc draw <file>`。四套皮肤（默认 `quantikz`，另有 `qiskit` / `modern` / `print`）、明暗主题、每行门数折叠、横/竖方向、比特序翻转、π 分数/小数/符号/隐藏参数显示，完整覆盖 OriginIR-ext（扩展门、`dagger`、`controlled_by`、符号参数、QRAM、错误信道、DEF 子程序、中途 MEASURE/RESET、经典指令、QIF/QWHILE 括号）。
+- **`Circuit.to_matrix()`**：导出整条线路的幺正矩阵（`(2**n, 2**n)` 复数阵，约定 `state_out = U @ state_in`、qubit 0 为态矢量下标低位；含测量或 QRAM 等非幺正操作时抛 `NotMatrixableError`）。
+- **弃用预告**：`uniqc.visualization.draw()` / `draw_html()`（含 `uniqc.compile.draw` 再导出）已改为发 `DeprecationWarning` 的兼容包装，**0.2.0 移除**——改用 `render(circuit, mode="text"/"html")` 或 `Circuit.draw(...)`（旧版 text 绘制委托 pyqpanda3，新版为自研渲染器）。
+
+上一版对齐 v0.1.0（"弃用悬崖"执行版）：所有在
 `0.0.x` 期间发 `DeprecationWarning` 的 API 已**全部移除**——
 
 - **Quafu 平台整体移除**（模块、`Platform.QUAFU`、`quafu.*` 配置键、`pyquafu` 引用）。BAQIS ScQ 芯片改用 Quark：`pip install unified-quantum[quark]` + `quark:<chip>`。

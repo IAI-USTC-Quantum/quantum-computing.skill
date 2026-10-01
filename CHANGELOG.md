@@ -2,6 +2,49 @@
 
 All notable changes to the `quantum-computing.skill` package are documented here.
 
+## [0.1.1] - 2026-10-01 — UnifiedQuantum 0.1.1 alignment
+
+### Changed
+
+- **电路渲染引擎文档落地** — v0.1.1 的自研渲染引擎（一个布局核心、七种
+  输出模式 `text/svg/png/mpl/latex/html/interactive`）写入
+  `uniqc-basic-usage`（description、Core Snippets、Names To Remember、
+  cli-guide 新增 `uniqc draw` 一节）与 `uniqc-result-analysis`
+  （circuit-and-timeline.md 重写绘制章节：`Circuit.draw(mode, ...)` /
+  `uniqc.visualization.render(...)`、共享选项、Jupyter `_repr_svg_` 内联
+  渲染、`print(circuit)`）。旧 `uniqc.visualization.draw()` / `draw_html()`
+  （含 `uniqc.compile.draw` 再导出）在所有提及处标注**弃用**
+  （`DeprecationWarning`，0.2.0 移除）。
+- **`Circuit.to_matrix()` 文档** — 全幺正导出（`(2**n, 2**n)` 复数阵，
+  `state_out = U @ state_in`、qubit 0 为低位；含测量 / QRAM 抛
+  `NotMatrixableError`）写入 basic-usage。
+- **新增示例** — `uniqc-basic-usage/examples/circuit_drawing.py`（text /
+  unicode / svg / latex / html / interactive + png 可选依赖降级）。
+- **契约与 CI 重钉** — `verify_upstream_contract.py` 默认 commit 与 CI
+  checkout ref 重打到 v0.1.1 tag commit `d933724`；新增 5 项 0.1.1 契约
+  检查（`render_engine` / `render_modes` / `circuit_to_matrix` /
+  `draw_cli` / `legacy_draw_deprecated`），共 19 项。
+- **冒烟扩展** — `smoke_basic_usage.py` 新增渲染引擎（text 断言线路标记、
+  svg / latex 内容、`uniqc draw` CLI stdout + `-m svg -o` 落盘）与
+  `to_matrix`（幺正性 + Bell 态列）断言；同时修复 Windows 下
+  `Path.home()` 走 `USERPROFILE` 导致 HOME 重定向失效的问题
+  （现同时覆盖两个环境变量，本地 Windows 与 CI Linux 均可跑）。
+- **补漏** — `uniqc-basic-usage` SKILL.md 遗留的 "current 0.0.17
+  release" / description 尾部 "v0.0.17" 更新为 0.1.1；README 对齐声明
+  更新为 v0.1.1 并保留 v0.1.0 历史段落。
+
+### Verified
+
+- PyPI 正式包 `unified-quantum[pytorch,visualization]==0.1.1`
+  （Python 3.12，Windows 本地 `.venv-smoke`）冒烟：13/13 PASS
+  （含新增 draw / to_matrix 断言）。
+- `verify_upstream_contract.py` 对 v0.1.1 tag commit `d933724` 的精确
+  worktree 19/19 通过；`validate_skill_repository.py` 结构检查
+  0 错误（78 markdown / 14 skill files）。
+- 注：v0.1.1 tag 之后 main 上的 QuTiP `kraus2q` 维度修复
+  （`20d507d`）**未发布**，本对齐不包含；`uniqc-noise-simulation` 的
+  Kraus 相关文档维持 v0.1.1 行为。
+
 ## [0.1.0] - 2026-08-24 — UnifiedQuantum 0.1.0 alignment
 
 ### Changed

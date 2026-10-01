@@ -34,8 +34,8 @@ def main() -> int:
     parser.add_argument("--repo-path", required=True, type=Path, help="UnifiedQuantum checkout")
     parser.add_argument(
         "--expected-commit",
-        default="7d724a1501d5b802ccb407a218359ae520d0a3d6",
-        help="v0.1.0 release contract commit",
+        default="d93372448e369bb0e33635f387e0aa5307d42601",
+        help="v0.1.1 release contract commit",
     )
     args = parser.parse_args()
 
@@ -52,7 +52,7 @@ def main() -> int:
     head = git(repo, "rev-parse", "HEAD")
     details["head"] = head.stdout.strip() if head.returncode == 0 else "unknown"
     ancestor = git(repo, "merge-base", "--is-ancestor", args.expected_commit, "HEAD")
-    checks["v0.1.0_contract_commit"] = ancestor.returncode == 0
+    checks["v0.1.1_contract_commit"] = ancestor.returncode == 0
 
     pyproject_text = read_text(pyproject)
     upstream_text = source_index(repo)
@@ -97,6 +97,19 @@ def main() -> int:
     checks["submit_cli_backend"] = "--backend" in cli_text
     checks["cloud_tests_opt_in"] = "--real-cloud-test" in upstream_text and 'not cloud' in upstream_text
     checks["deprecation_policy"] = "0.1.0" in upstream_text and "DeprecationWarning" in upstream_text
+
+    # 0.1.1: self-developed circuit rendering engine behind one layout core.
+    render_pkg = repo / "uniqc" / "visualization" / "circuit_render"
+    render_init_text = read_text(render_pkg / "__init__.py")
+    render_options_text = read_text(render_pkg / "options.py")
+    qcircuit_text = read_text(repo / "uniqc" / "circuit_builder" / "qcircuit.py")
+    cli_main_text = read_text(repo / "uniqc" / "cli" / "main.py")
+    legacy_viz_text = read_text(repo / "uniqc" / "visualization" / "circuit.py")
+    checks["render_engine"] = "def render(" in render_init_text and "from uniqc.visualization.circuit_render import render" in qcircuit_text
+    checks["render_modes"] = 'MODES = ("text", "svg", "png", "mpl", "latex", "html", "interactive")' in render_options_text
+    checks["circuit_to_matrix"] = "def to_matrix" in qcircuit_text and "NotMatrixableError" in qcircuit_text
+    checks["draw_cli"] = 'app.command("draw"' in cli_main_text and (repo / "uniqc" / "cli" / "draw.py").is_file()
+    checks["legacy_draw_deprecated"] = "warn_removed_in_0_2_0" in legacy_viz_text and "0.2.0" in legacy_viz_text
 
     summary = {
         "ok": all(checks.values()),

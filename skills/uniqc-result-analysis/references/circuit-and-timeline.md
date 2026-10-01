@@ -3,17 +3,40 @@
 uniqc ships a few helpers for visualizing the program itself, which is
 useful when you want to put the result next to the circuit that produced it.
 
-## ASCII / matplotlib drawing
+## Circuit drawing (uniqc ≥ 0.1.1 rendering engine)
+
+One layout core feeds seven output modes — `text` (self-developed ASCII /
+Unicode art, no pyqpanda3 dependency), `svg`, `png`, `mpl` (matplotlib
+Figure), `latex` (quantikz source), `html`, and `interactive`
+(click-to-inspect gates):
 
 ```python
-from uniqc.visualization import draw, draw_html
-draw(circuit)                       # matplotlib figure (interactive)
-print(circuit.draw())               # ASCII-art string (also: circuit.draw())
+from uniqc.visualization import render
+
+print(circuit)                       # text art in the terminal
+art = render(circuit, mode="text")   # same drawing as a TextDrawing object
+svg = circuit.draw("svg")            # str; also render(circuit, mode="svg")
+tikz = circuit.draw("latex")         # quantikz source, paste into a paper
+render(circuit, mode="html", filename="circuit.html")
 ```
 
-`draw_html(circuit, output_path="circuit.html")` writes a self-contained
-HTML page — handy when you want to share with someone who does not have
-uniqc installed.
+Shared options on `render()` / `Circuit.draw()`: `style`
+(`quantikz` default | `qiskit` | `modern` | `print`), `theme`
+(`light`/`dark`), `fold` (gates per row: `"auto"` | int | `0` to disable),
+`orientation` (`h` time→ / `v` time↓), `qubit_order` (`asc`/`desc`),
+`param_mode` (`pi`/`decimal`/`symbol`/`hidden`), `show_clbits`,
+`charset` (`ascii`/`unicode`), `scale`, `filename`. In Jupyter a `Circuit`
+cell output renders itself as inline SVG (`_repr_svg_`); `mode=None`
+auto-picks `svg` in Jupyter and `text` in a terminal.
+
+The same engine backs the CLI (`uniqc draw <file>` for OriginIR / QASM
+files — see the `uniqc-basic-usage` cli guide).
+
+> ⚠️ `uniqc.visualization.draw()` / `draw_html()` (and the
+> `uniqc.compile.draw` re-export) are deprecated wrappers that emit a
+> `DeprecationWarning` and will be **removed in uniqc 0.2.0** — the old
+> text output delegated to pyqpanda3. Use
+> `render(circuit, mode="text"/"html")` or `Circuit.draw(...)` instead.
 
 ## Self-contained HTML
 
@@ -85,21 +108,19 @@ plt.close()
 
 ## When the user just wants to see the diagram
 
-If they are in Jupyter:
-
-```python
-draw(circuit)
-```
+If they are in Jupyter, make the circuit the cell's last expression — it
+renders as inline SVG automatically (`_repr_svg_`).
 
 If they are in a terminal:
 
 ```python
-print(circuit.draw())
+print(circuit)                # or: print(circuit.draw("text"))
 ```
 
 If you are running headless / inside CI:
 
 ```python
-draw_html(circuit, output_path="circuit.html")
+from uniqc.visualization import render
+render(circuit, mode="html", filename="circuit.html")
 print("Open circuit.html in a browser.")
 ```

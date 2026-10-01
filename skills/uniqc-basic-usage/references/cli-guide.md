@@ -87,6 +87,31 @@ uniqc circuit bell.qasm --format originir -o bell.ir
 
 当用户只是想知道线路规模、门数、深度或格式是否能解析，先用 `uniqc circuit --info`。
 
+## `uniqc draw`：电路渲染（uniqc ≥ 0.1.1）
+
+v0.1.1 起自带自研渲染引擎（不依赖 pyqpanda3），直接渲染 OriginIR / QASM 文件，一个布局核心七种输出模式：
+
+```bash
+uniqc draw bell.originir                      # text 字符画打到 stdout（默认）
+uniqc draw bell.originir -m svg -o bell.svg   # 矢量图
+uniqc draw bell.originir -m png -o bell.png   # 位图
+uniqc draw bell.originir -m latex             # quantikz LaTeX 源码
+uniqc draw bell.originir -m html -o bell.html # 自包含 HTML
+uniqc draw bell.originir -m interactive       # 可点击查看门详情的 HTML
+```
+
+常用选项：`-m/--mode`（`text | svg | png | mpl | latex | html | interactive`）、
+`-s/--style`（`quantikz` 默认 | `qiskit` | `modern` | `print`）、
+`--theme light|dark`、`--fold auto|int|0`（每行门数折叠）、
+`--orientation h|v`、`--param-mode pi|decimal|symbol|hidden`、
+`--show-clbits`（画经典双线）、`-u/--unicode`（text 模式用 Unicode 符号）、
+`-o/--output`（默认 text/latex/svg 打到 stdout）。
+
+Python 侧同一引擎的入口是 `Circuit.draw(mode, ...)` /
+`uniqc.visualization.render(circuit, mode, ...)`；Jupyter 里 `Circuit`
+作为单元格末表达式自动内联渲染 SVG。旧的
+`uniqc.visualization.draw()` / `draw_html()` 已弃用（0.2.0 移除）。
+
 ## 本地模拟
 
 常用后端：

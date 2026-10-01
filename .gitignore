@@ -57,3 +57,7 @@ maxcut_solution.png
 
 # Claude Code
 CLAUDE.md
+
+# Local smoke-validation artifacts
+.venv-smoke/
+smoke-summary.json

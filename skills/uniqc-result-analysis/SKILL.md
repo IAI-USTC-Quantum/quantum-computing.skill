@@ -147,8 +147,12 @@ Common causes:
 - Plotting: `uniqc.visualization.plot_histogram`,
   `uniqc.visualization.plot_distribution`,
   `uniqc.visualization.format_result` (textual summary used by the CLI).
-- Circuit drawing: `uniqc.visualization.draw`, `draw_html`,
-  `circuit_to_html(circuit, output_path=...)`.
+- Circuit drawing (uniqc ≥ 0.1.1 rendering engine): `circuit.draw(mode, ...)`
+  or `uniqc.visualization.render(circuit, mode=...)` — modes
+  `text/svg/png/mpl/latex/html/interactive`; also CLI `uniqc draw <file>`.
+  The legacy `uniqc.visualization.draw` / `draw_html` wrappers are
+  **deprecated** (DeprecationWarning, removed in 0.2.0). For report pages
+  use `circuit_to_html(circuit, output_path=...)` (unchanged).
 - Timeline: `uniqc.visualization.schedule_circuit`,
   `plot_time_line_html` (covered in `uniqc-basic-usage`).
 - Pauli observables: `uniqc.algorithms.core.measurement.pauli_expectation`,
